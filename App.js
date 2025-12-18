@@ -2,11 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
-import { auth } from './firebaseConfig';
+import { auth } from './src/firebaseConfig';
 
 // Import your custom screen files
-import LoginScreen from './LoginScreen';
-import RegisterScreen from './RegisterScreen';
+import LoginScreen from './src/screens/LoginScreen';
+import RegisterScreen from './src/screens/RegisterScreen';
 
 // Import a placeholder for the Dashboard
 import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';

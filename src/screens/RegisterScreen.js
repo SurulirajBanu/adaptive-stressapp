@@ -4,7 +4,7 @@ import {
   Alert, KeyboardAvoidingView, Platform
 } from 'react-native';
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
-import { auth } from './firebaseConfig';
+import { auth } from '../firebaseConfig';
 
 export default function RegisterScreen({ navigation }) {
   const [nickname, setNickname] = useState('');
