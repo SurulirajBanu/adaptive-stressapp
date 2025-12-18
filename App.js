@@ -1,50 +1,33 @@
 import React, { useState, useEffect } from 'react';
+import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import { onAuthStateChanged, signOut } from 'firebase/auth';
+import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from './src/firebaseConfig';
 
-// Import your custom screen files
+// 1. Import your screens
 import LoginScreen from './src/screens/LoginScreen';
 import RegisterScreen from './src/screens/RegisterScreen';
-
-// Import a placeholder for the Dashboard
-import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
+import HomeScreen from './src/screens/HomeScreen'; // Ensure this file exists in src/screens/
 
 const Stack = createStackNavigator();
 
-// --- Simple Dashboard View ---
-function DashboardScreen() {
-  const user = auth.currentUser;
-
-  const handleLogout = () => {
-    signOut(auth).catch(error => console.log(error.message));
-  };
-
-  return (
-    <View style={styles.center}>
-      <Text style={styles.title}>Welcome!</Text>
-      <Text style={styles.userText}>{user?.email}</Text>
-      <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-        <Text style={styles.logoutText}>Logout</Text>
-      </TouchableOpacity>
-    </View>
-  );
-}
-
-// --- Main App Component ---
 export default function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // This listener detects when a user logs in or out
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      console.log("Auth State Changed. User is:", currentUser ? currentUser.email : "Logged Out");
       setUser(currentUser);
       setLoading(false);
     });
-    return unsubscribe;
+
+    return unsubscribe; // Cleanup listener on unmount
   }, []);
 
+  // Show a spinner while checking if the user is logged in
   if (loading) {
     return (
       <View style={styles.center}>
@@ -57,17 +40,24 @@ export default function App() {
     <NavigationContainer>
       <Stack.Navigator>
         {user ? (
-          // If logged in, only the Dashboard is accessible
+          // --- PROTECTED ROUTES (Only visible when logged in) ---
           <Stack.Screen
-            name="Dashboard"
-            component={DashboardScreen}
-            options={{ headerLeft: () => null }} // Hide back button on dashboard
+            name="Home"
+            component={HomeScreen}
+            options={{ headerShown: false }} // Custom header is inside HomeScreen.js
           />
         ) : (
-          // If logged out, these two screens are available
+          // --- AUTH ROUTES (Only visible when logged out) ---
           <>
-            <Stack.Screen name="Login" component={LoginScreen} />
-            <Stack.Screen name="Register" component={RegisterScreen} />
+            <Stack.Screen
+              name="Login"
+              component={LoginScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="Register"
+              component={RegisterScreen}
+            />
           </>
         )}
       </Stack.Navigator>
@@ -76,9 +66,10 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff' },
-  title: { fontSize: 24, fontWeight: 'bold', marginBottom: 10 },
-  userText: { fontSize: 16, color: '#666', marginBottom: 30 },
-  logoutButton: { backgroundColor: '#FF3B30', padding: 15, borderRadius: 10, width: '50%', alignItems: 'center' },
-  logoutText: { color: 'white', fontWeight: 'bold' }
+  center: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#fff'
+  },
 });
