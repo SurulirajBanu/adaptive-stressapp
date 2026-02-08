@@ -112,7 +112,7 @@ export default function HomeScreen({ navigation }) {
             <Text style={styles.navText}>Garden</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.navItem} onPress={handleLogout}>
+          <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Profile')}>
             <Ionicons name="person" size={30} color="#4f7f6b" />
             <Text style={styles.navText}>Profile</Text>
           </TouchableOpacity>

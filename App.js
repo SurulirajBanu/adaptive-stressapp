@@ -8,7 +8,9 @@ import { auth } from './src/firebaseConfig';
 // 1. Import your screens
 import LoginScreen from './src/screens/LoginScreen';
 import RegisterScreen from './src/screens/RegisterScreen';
-import HomeScreen from './src/screens/HomeScreen'; // Ensure this file exists in src/screens/
+import HomeScreen from './src/screens/HomeScreen';
+// Correct the import path for ProfileScreen
+import ProfileScreen from './src/screens/Profile';
 
 const Stack = createStackNavigator();
 
@@ -41,11 +43,18 @@ export default function App() {
       <Stack.Navigator>
         {user ? (
           // --- PROTECTED ROUTES (Only visible when logged in) ---
-          <Stack.Screen
-            name="Home"
-            component={HomeScreen}
-            options={{ headerShown: false }} // Custom header is inside HomeScreen.js
-          />
+          <>
+            <Stack.Screen
+              name="Home"
+              component={HomeScreen}
+              options={{ headerShown: false }} // Custom header is inside HomeScreen.js
+            />
+            <Stack.Screen
+              name="Profile"
+              component={ProfileScreen}
+              options={{ headerShown: false }}
+            />
+          </>
         ) : (
           // --- AUTH ROUTES (Only visible when logged out) ---
           <>
