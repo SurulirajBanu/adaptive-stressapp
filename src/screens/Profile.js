@@ -8,42 +8,100 @@ import {
   ImageBackground,
   Switch,
   Platform,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { auth } from '../firebaseConfig';
-import { signOut, onAuthStateChanged } from 'firebase/auth';
+import { signOut } from 'firebase/auth';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Notifications from 'expo-notifications';
+
+// Configure notification handler
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: false,
+  }),
+});
 
 export default function ProfileScreen({ navigation }) {
-  const [user, setUser] = useState(null);
   const [isReminderEnabled, setIsReminderEnabled] = useState(false);
   const [date, setDate] = useState(new Date());
   const [showPicker, setShowPicker] = useState(false);
 
+  // Load saved settings on component mount
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, currentUser => {
-      setUser(currentUser);
-    });
-    return unsubscribe; // Cleanup on unmount
+    const loadSettings = async () => {
+      try {
+        const savedTime = await AsyncStorage.getItem('reminderTime');
+        const savedEnabled = await AsyncStorage.getItem('reminderEnabled');
+        if (savedTime) {
+          setDate(new Date(savedTime));
+        }
+        if (savedEnabled) {
+          setIsReminderEnabled(JSON.parse(savedEnabled));
+        }
+      } catch (error) {
+        console.error("Failed to load settings:", error);
+      }
+    };
+    loadSettings();
   }, []);
 
   const handleLogout = () => {
     signOut(auth).catch(error => console.log('Logout Error:', error.message));
   };
 
-  const onDateChange = (event, selectedDate) => {
+  const scheduleNotification = async (time) => {
+    const { status } = await Notifications.requestPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permission required', 'Please enable notifications to receive reminders.');
+      return;
+    }
+
+    await Notifications.cancelAllScheduledNotificationsAsync(); // Clear old reminders
+
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title: "Time for your practice! 🧘",
+        body: 'A few moments of calm can make a big difference.',
+      },
+      trigger: {
+        hour: time.getHours(),
+        minute: time.getMinutes(),
+        repeats: true, // Daily reminder
+      },
+    });
+  };
+
+  const handleReminderToggle = async (value) => {
+    setIsReminderEnabled(value);
+    await AsyncStorage.setItem('reminderEnabled', JSON.stringify(value));
+
+    if (value) {
+      await scheduleNotification(date);
+    } else {
+      await Notifications.cancelAllScheduledNotificationsAsync();
+    }
+  };
+
+  const onDateChange = async (event, selectedDate) => {
     const currentDate = selectedDate || date;
     setShowPicker(Platform.OS === 'ios');
     setDate(currentDate);
+
+    await AsyncStorage.setItem('reminderTime', currentDate.toISOString());
+    if (isReminderEnabled) {
+      await scheduleNotification(currentDate);
+    }
   };
 
   const showTimepicker = () => {
     setShowPicker(true);
   };
-
-  // Derive user name, similar to HomeScreen
-  const userName = user?.displayName || (user?.email ? user.email.split('@')[0].charAt(0).toUpperCase() + user.email.split('@')[0].slice(1) : 'User');
 
   return (
     <ImageBackground
@@ -54,56 +112,67 @@ export default function ProfileScreen({ navigation }) {
       <SafeAreaView style={styles.container} edges={['top', 'right', 'left']}>
         <StatusBar barStyle="dark-content" />
 
-        {/* --- HEADER --- */}
         <View style={styles.header}>
-          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-            <Ionicons name="chevron-back" size={28} color="#2f4f4f" />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>Profile</Text>
+          <Text style={styles.headerTitle}>Settings</Text>
         </View>
 
-        {/* --- USER INFO --- */}
-        <View style={styles.userInfoSection}>
-          <Text style={styles.userName}>{userName}</Text>
-          <Text style={styles.userEmail}>{user?.email}</Text>
-        </View>
+        <View style={styles.content}>
+            <View style={styles.reminderCard}>
+            <Text style={styles.cardTitle}>Practice Reminder</Text>
+            <View style={styles.remindMeRow}>
+                <Text style={styles.remindMeText}>Remind Me Daily</Text>
+                <Switch
+                trackColor={{ false: '#767577', true: '#6FAF98' }}
+                thumbColor={isReminderEnabled ? '#f4f3f4' : '#f4f3f4'}
+                ios_backgroundColor="#3e3e3e"
+                onValueChange={handleReminderToggle}
+                value={isReminderEnabled}
+                />
+            </View>
+            {isReminderEnabled && (
+                <TouchableOpacity onPress={showTimepicker} style={styles.timeDisplay}>
+                <Text style={styles.timeText}>
+                    {date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                </Text>
+                </TouchableOpacity>
+            )}
+            {showPicker && (
+                <DateTimePicker
+                testID="dateTimePicker"
+                value={date}
+                mode="time"
+                is24Hour={false}
+                display="spinner"
+                onChange={onDateChange}
+                />
+            )}
+            </View>
 
-        {/* --- PRACTICE REMINDER CARD --- */}
-        <View style={styles.reminderCard}>
-          <Text style={styles.cardTitle}>Practice Reminder</Text>
-          <View style={styles.remindMeRow}>
-            <Text style={styles.remindMeText}>Remind Me</Text>
-            <Switch
-              trackColor={{ false: '#767577', true: '#6FAF98' }}
-              thumbColor={isReminderEnabled ? '#f4f3f4' : '#f4f3f4'}
-              ios_backgroundColor="#3e3e3e"
-              onValueChange={() => setIsReminderEnabled(previousState => !previousState)}
-              value={isReminderEnabled}
-            />
-          </View>
-          {isReminderEnabled && (
-            <TouchableOpacity onPress={showTimepicker} style={styles.timeDisplay}>
-              <Text style={styles.timeText}>
-                {date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-              </Text>
+            <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
+            <Text style={styles.logoutButtonText}>Log Out</Text>
             </TouchableOpacity>
-          )}
-          {showPicker && (
-            <DateTimePicker
-              testID="dateTimePicker"
-              value={date}
-              mode="time"
-              is24Hour={false}
-              display="spinner" // 'spinner' gives the wheel look
-              onChange={onDateChange}
-            />
-          )}
         </View>
 
-        {/* --- LOGOUT BUTTON --- */}
-        <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
-          <Text style={styles.logoutButtonText}>Log Out</Text>
-        </TouchableOpacity>
+        <View style={styles.bottomNav}>
+          <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Home')}>
+            <Ionicons name="home" size={30} color="#4f7f6b" />
+            <Text style={styles.navText}>Home</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Garden')}>
+            <MaterialCommunityIcons
+              name="flower-tulip"
+              size={30}
+              color="#4f7f6b"
+            />
+            <Text style={styles.navText}>Garden</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Profile')}>
+            <Ionicons name="person" size={30} color="#6FAF98" />
+            <Text style={[styles.navText, { color: '#6FAF98' }]}>Profile</Text>
+          </TouchableOpacity>
+        </View>
 
       </SafeAreaView>
     </ImageBackground>
@@ -117,36 +186,21 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  content: {
+      flex: 1,
+      justifyContent: 'center',
+  },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 15,
     height: 60,
-    position: 'relative',
-  },
-  backButton: {
-    position: 'absolute',
-    left: 15,
   },
   headerTitle: {
     fontSize: 22,
     fontWeight: 'bold',
     color: '#2f4f4f',
-  },
-  userInfoSection: {
-    alignItems: 'center',
-    paddingVertical: 30,
-  },
-  userName: {
-    fontSize: 24,
-    fontWeight: '600',
-    color: '#2f4f4f',
-  },
-  userEmail: {
-    fontSize: 16,
-    color: '#4f7f6b',
-    marginTop: 4,
   },
   reminderCard: {
     backgroundColor: 'rgba(255, 255, 255, 0.9)',
@@ -164,6 +218,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#2f4f4f',
     marginBottom: 20,
+    textAlign: 'center',
   },
   remindMeRow: {
     flexDirection: 'row',
@@ -203,5 +258,23 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 18,
     fontWeight: '700',
+  },
+  bottomNav: {
+    height: 100,
+    flexDirection: 'row',
+    backgroundColor: 'rgba(255, 255, 255, 0.85)',
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(0,0,0,0.05)',
+    paddingBottom: 10,
+  },
+  navItem: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  navText: {
+    fontSize: 16,
+    marginTop: 4,
+    color: '#4f7f6b',
   },
 });

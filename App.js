@@ -5,12 +5,12 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from './src/firebaseConfig';
 
-// 1. Import your screens
 import LoginScreen from './src/screens/LoginScreen';
 import RegisterScreen from './src/screens/RegisterScreen';
 import HomeScreen from './src/screens/HomeScreen';
 import ProfileScreen from './src/screens/Profile';
-import BreathingScreen from './src/screens/Breathing'; // Import the new screen
+import BreathingScreen from './src/screens/Breathing';
+import GardenScreen from './src/screens/Garden';
 
 const Stack = createStackNavigator();
 
@@ -49,11 +49,15 @@ export default function App() {
               component={ProfileScreen}
               options={{ headerShown: false }}
             />
-            {/* Add Breathing screen to the navigator */}
             <Stack.Screen
               name="Breathing"
               component={BreathingScreen}
               options={{ headerShown: false }}
+            />
+            <Stack.Screen
+               name="Garden"
+               component={GardenScreen}
+               options={{ headerShown: false }}
             />
           </>
         ) : (
@@ -66,6 +70,7 @@ export default function App() {
             <Stack.Screen
               name="Register"
               component={RegisterScreen}
+              options={{ headerShown: false }}
             />
           </>
         )}

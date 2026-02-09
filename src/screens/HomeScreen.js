@@ -100,7 +100,7 @@ export default function HomeScreen({ navigation }) {
             <Text style={[styles.navText, { color: '#6FAF98' }]}>Home</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.navItem}>
+          <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Garden')}>
             <MaterialCommunityIcons
               name="flower-tulip"
               size={30}

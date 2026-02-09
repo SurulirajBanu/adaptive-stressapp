@@ -25,15 +25,13 @@ const BreathingScreen = ({ navigation }) => {
         useNativeDriver: true,
       }),
       // Hold
-      Animated.delay(1000), // 1 second
+      Animated.delay(7000), // 7 seconds
       // Breathe Out
       Animated.timing(scaleAnim, {
         toValue: 1,
-        duration: 6000, // 6 seconds
+        duration: 8000, // 8 seconds
         useNativeDriver: true,
       }),
-       // Hold
-      Animated.delay(1000), // 1 second
     ])
   );
 
@@ -41,18 +39,15 @@ const BreathingScreen = ({ navigation }) => {
     let interval;
     if (isAnimating) {
       breatheAnimation.start();
-      const cycleDuration = 12000; // 4s in + 1s hold + 6s out + 1s hold
+      const cycleDuration = 19000; // 4s in + 7s hold + 8s out
       const updateInstructions = () => {
         setInstruction('Breathe In...');
         setTimeout(() => {
           setInstruction('Hold');
-        }, 4000);
+        }, 4000); // Start hold after 4s
         setTimeout(() => {
           setInstruction('Breathe Out...');
-        }, 5000);
-         setTimeout(() => {
-          setInstruction('Hold');
-        }, 11000);
+        }, 11000); // Start breathe out after 4s + 7s
       };
       updateInstructions();
       interval = setInterval(updateInstructions, cycleDuration);
@@ -124,7 +119,7 @@ const BreathingScreen = ({ navigation }) => {
             <Text style={styles.navText}>Home</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.navItem}>
+          <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Garden')}>
             <MaterialCommunityIcons
               name="flower-tulip"
               size={30}
@@ -191,10 +186,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     // Distinct shadow
     shadowColor: '#00331a',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.4,
-    shadowRadius: 20,
-    elevation: 20,
+    shadowOffset: { width: 0, height: 20 },
+    shadowOpacity: 0.5,
+    shadowRadius: 25,
+    elevation: 25,
   },
   ball: {
     width: '100%',
