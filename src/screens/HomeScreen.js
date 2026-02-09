@@ -8,7 +8,7 @@ import {
   ImageBackground,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons'; // Built-in with Expo
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { auth } from '../firebaseConfig';
 import { signOut, onAuthStateChanged } from 'firebase/auth';
 
@@ -18,7 +18,7 @@ export default function HomeScreen({ navigation }) {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
-        let name = 'User'; // Default name
+        let name = 'User';
         if (user.displayName) {
           name = user.displayName;
         } else if (user.email) {
@@ -27,15 +27,11 @@ export default function HomeScreen({ navigation }) {
         }
         setUserName(name);
       } else {
-        // Handle user not signed in
         setUserName('User');
       }
     });
-
-    // Cleanup subscription on unmount
     return () => unsubscribe();
   }, []);
-
 
   const handleLogout = () => {
     signOut(auth).catch(error => console.log(error.message));
@@ -50,7 +46,6 @@ export default function HomeScreen({ navigation }) {
       <SafeAreaView style={styles.container} edges={['right', 'left', 'bottom']}>
         <StatusBar barStyle="dark-content" />
 
-        {/* --- MAIN CONTENT AREA --- */}
         <View style={styles.content}>
           <View>
             <Text style={styles.title}>Practice</Text>
@@ -59,7 +54,10 @@ export default function HomeScreen({ navigation }) {
             </Text>
 
             {/* Breathing Exercises Card */}
-            <TouchableOpacity style={styles.practiceCard}>
+            <TouchableOpacity
+              style={styles.practiceCard}
+              onPress={() => navigation.navigate('Breathing')} // Navigate to Breathing screen
+            >
               <View style={styles.iconContainer}>
                 <MaterialCommunityIcons
                   name="record-circle-outline"
@@ -96,7 +94,6 @@ export default function HomeScreen({ navigation }) {
           </View>
         </View>
 
-        {/* --- BOTTOM NAVIGATION BAR --- */}
         <View style={styles.bottomNav}>
           <TouchableOpacity style={styles.navItem}>
             <Ionicons name="home" size={30} color="#6FAF98" />
@@ -130,22 +127,9 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: 'transparent',
   },
-  header: {
-    height: 60,
-    justifyContent: 'center',
-    paddingHorizontal: 20,
-    backgroundColor: 'rgba(255, 255, 255, 0.85)',
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0,0,0,0.05)',
-  },
-  headerTitle: {
-    fontSize: 30,
-    fontWeight: 'bold',
-    color: '#2f4f4f',
-  },
   content: {
     flex: 1,
-    justifyContent: 'center', // This centers the content vertically
+    justifyContent: 'center',
     paddingHorizontal: 20,
   },
   title: {
@@ -173,7 +157,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
-    height: 200,
+    height: 150, // Adjusted height
   },
   iconContainer: {
     marginRight: 15,
@@ -182,12 +166,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   cardTitle: {
-    fontSize: 25,
+    fontSize: 22, // Adjusted font size
     fontWeight: '600',
     color: '#2f4f4f',
   },
   cardSubtitle: {
-    fontSize: 18,
+    fontSize: 16, // Adjusted font size
     color: '#4f7f6b',
     marginTop: 4,
   },
@@ -206,7 +190,7 @@ const styles = StyleSheet.create({
   },
   navText: {
     fontSize: 16,
-    marginTop: 10,
+    marginTop: 4,
     color: '#4f7f6b',
   },
 });

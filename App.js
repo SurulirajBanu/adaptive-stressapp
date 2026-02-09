@@ -9,8 +9,8 @@ import { auth } from './src/firebaseConfig';
 import LoginScreen from './src/screens/LoginScreen';
 import RegisterScreen from './src/screens/RegisterScreen';
 import HomeScreen from './src/screens/HomeScreen';
-// Correct the import path for ProfileScreen
 import ProfileScreen from './src/screens/Profile';
+import BreathingScreen from './src/screens/Breathing'; // Import the new screen
 
 const Stack = createStackNavigator();
 
@@ -19,17 +19,13 @@ export default function App() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // This listener detects when a user logs in or out
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      console.log("Auth State Changed. User is:", currentUser ? currentUser.email : "Logged Out");
       setUser(currentUser);
       setLoading(false);
     });
-
-    return unsubscribe; // Cleanup listener on unmount
+    return unsubscribe;
   }, []);
 
-  // Show a spinner while checking if the user is logged in
   if (loading) {
     return (
       <View style={styles.center}>
@@ -42,21 +38,25 @@ export default function App() {
     <NavigationContainer>
       <Stack.Navigator>
         {user ? (
-          // --- PROTECTED ROUTES (Only visible when logged in) ---
           <>
             <Stack.Screen
               name="Home"
               component={HomeScreen}
-              options={{ headerShown: false }} // Custom header is inside HomeScreen.js
+              options={{ headerShown: false }}
             />
             <Stack.Screen
               name="Profile"
               component={ProfileScreen}
               options={{ headerShown: false }}
             />
+            {/* Add Breathing screen to the navigator */}
+            <Stack.Screen
+              name="Breathing"
+              component={BreathingScreen}
+              options={{ headerShown: false }}
+            />
           </>
         ) : (
-          // --- AUTH ROUTES (Only visible when logged out) ---
           <>
             <Stack.Screen
               name="Login"
