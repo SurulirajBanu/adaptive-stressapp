@@ -17,6 +17,7 @@ import { auth } from '../firebaseConfig';
 import { signOut } from 'firebase/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Notifications from 'expo-notifications';
+import Navigation from '../components/Navigation';
 
 // Configure notification handler
 Notifications.setNotificationHandler({
@@ -117,62 +118,43 @@ export default function ProfileScreen({ navigation }) {
         </View>
 
         <View style={styles.content}>
-            <View style={styles.reminderCard}>
+          <View style={styles.reminderCard}>
             <Text style={styles.cardTitle}>Practice Reminder</Text>
             <View style={styles.remindMeRow}>
-                <Text style={styles.remindMeText}>Remind Me Daily</Text>
-                <Switch
+              <Text style={styles.remindMeText}>Remind Me Daily</Text>
+              <Switch
                 trackColor={{ false: '#767577', true: '#6FAF98' }}
                 thumbColor={isReminderEnabled ? '#f4f3f4' : '#f4f3f4'}
                 ios_backgroundColor="#3e3e3e"
                 onValueChange={handleReminderToggle}
                 value={isReminderEnabled}
-                />
+              />
             </View>
             {isReminderEnabled && (
-                <TouchableOpacity onPress={showTimepicker} style={styles.timeDisplay}>
+              <TouchableOpacity onPress={showTimepicker} style={styles.timeDisplay}>
                 <Text style={styles.timeText}>
-                    {date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  {date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </Text>
-                </TouchableOpacity>
+              </TouchableOpacity>
             )}
             {showPicker && (
-                <DateTimePicker
+              <DateTimePicker
                 testID="dateTimePicker"
                 value={date}
                 mode="time"
                 is24Hour={false}
                 display="spinner"
                 onChange={onDateChange}
-                />
+              />
             )}
-            </View>
+          </View>
 
-            <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
+          <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
             <Text style={styles.logoutButtonText}>Log Out</Text>
-            </TouchableOpacity>
-        </View>
-
-        <View style={styles.bottomNav}>
-          <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Home')}>
-            <Ionicons name="home" size={30} color="#4f7f6b" />
-            <Text style={styles.navText}>Home</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Garden')}>
-            <MaterialCommunityIcons
-              name="flower-tulip"
-              size={30}
-              color="#4f7f6b"
-            />
-            <Text style={styles.navText}>Garden</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Profile')}>
-            <Ionicons name="person" size={30} color="#6FAF98" />
-            <Text style={[styles.navText, { color: '#6FAF98' }]}>Profile</Text>
           </TouchableOpacity>
         </View>
+
+        <Navigation navigation={navigation} currentScreen="Profile" />
 
       </SafeAreaView>
     </ImageBackground>
@@ -187,8 +169,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   content: {
-      flex: 1,
-      justifyContent: 'center',
+    flex: 1,
+    justifyContent: 'center',
   },
   header: {
     flexDirection: 'row',
@@ -258,23 +240,5 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 18,
     fontWeight: '700',
-  },
-  bottomNav: {
-    height: 100,
-    flexDirection: 'row',
-    backgroundColor: 'rgba(255, 255, 255, 0.85)',
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(0,0,0,0.05)',
-    paddingBottom: 10,
-  },
-  navItem: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  navText: {
-    fontSize: 16,
-    marginTop: 4,
-    color: '#4f7f6b',
   },
 });

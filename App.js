@@ -11,6 +11,12 @@ import HomeScreen from './src/screens/HomeScreen';
 import ProfileScreen from './src/screens/Profile';
 import BreathingScreen from './src/screens/Breathing';
 import GardenScreen from './src/screens/Garden';
+import MeditationScreen from './src/screens/Meditation';
+import MoodCalendarScreen from './src/screens/MoodCalendar';
+import StressTrackerScreen from './src/screens/StressTracker';
+import StressFormScreen from './src/screens/StressForm';
+import IdentifyStressScreen from './src/screens/IdentifyStress';
+import StressSolutionsScreen from './src/screens/StressSolutions';
 
 const Stack = createStackNavigator();
 
@@ -55,9 +61,39 @@ export default function App() {
               options={{ headerShown: false }}
             />
             <Stack.Screen
-               name="Garden"
-               component={GardenScreen}
-               options={{ headerShown: false }}
+              name="Garden"
+              component={GardenScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="Meditation"
+              component={MeditationScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="MoodCalendar"
+              component={MoodCalendarScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="StressTracker"
+              component={StressTrackerScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="StressForm"
+              component={StressFormScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="IdentifyStress"
+              component={IdentifyStressScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="StressSolutions"
+              component={StressSolutionsScreen}
+              options={{ headerShown: false }}
             />
           </>
         ) : (

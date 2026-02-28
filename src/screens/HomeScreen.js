@@ -11,6 +11,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { auth } from '../firebaseConfig';
 import { signOut, onAuthStateChanged } from 'firebase/auth';
+import Navigation from '../components/Navigation';
 
 export default function HomeScreen({ navigation }) {
   const [userName, setUserName] = useState('User');
@@ -75,7 +76,10 @@ export default function HomeScreen({ navigation }) {
             </TouchableOpacity>
 
             {/* Meditation Sessions Card */}
-            <TouchableOpacity style={styles.practiceCard}>
+            <TouchableOpacity
+              style={styles.practiceCard}
+              onPress={() => navigation.navigate('Meditation')}
+            >
               <View style={styles.iconContainer}>
                 <MaterialCommunityIcons
                   name="meditation"
@@ -94,26 +98,7 @@ export default function HomeScreen({ navigation }) {
           </View>
         </View>
 
-        <View style={styles.bottomNav}>
-          <TouchableOpacity style={styles.navItem}>
-            <Ionicons name="home" size={30} color="#6FAF98" />
-            <Text style={[styles.navText, { color: '#6FAF98' }]}>Home</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Garden')}>
-            <MaterialCommunityIcons
-              name="flower-tulip"
-              size={30}
-              color="#4f7f6b"
-            />
-            <Text style={styles.navText}>Garden</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Profile')}>
-            <Ionicons name="person" size={30} color="#4f7f6b" />
-            <Text style={styles.navText}>Profile</Text>
-          </TouchableOpacity>
-        </View>
+        <Navigation navigation={navigation} currentScreen="Home" />
       </SafeAreaView>
     </ImageBackground>
   );
@@ -175,22 +160,5 @@ const styles = StyleSheet.create({
     color: '#4f7f6b',
     marginTop: 4,
   },
-  bottomNav: {
-    height: 100,
-    flexDirection: 'row',
-    backgroundColor: 'rgba(255, 255, 255, 0.85)',
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(0,0,0,0.05)',
-    paddingBottom: 10,
-  },
-  navItem: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  navText: {
-    fontSize: 16,
-    marginTop: 4,
-    color: '#4f7f6b',
-  },
+
 });

@@ -12,6 +12,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
+import Navigation from '../components/Navigation';
 
 const { width, height } = Dimensions.get('window');
 
@@ -75,22 +76,7 @@ const GardenScreen = ({ navigation }) => {
         </View>
 
         {/* Bottom Navigation */}
-        <View style={styles.bottomNav}>
-          <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Home')}>
-            <Ionicons name="home" size={30} color="#4f7f6b" />
-            <Text style={styles.navText}>Home</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Garden')}>
-            <MaterialCommunityIcons name="flower-tulip" size={30} color="#6FAF98" />
-            <Text style={[styles.navText, { color: '#6FAF98' }]}>Garden</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Profile')}>
-            <Ionicons name="person" size={30} color="#4f7f6b" />
-            <Text style={styles.navText}>Profile</Text>
-          </TouchableOpacity>
-        </View>
+        <Navigation navigation={navigation} currentScreen="Garden" />
       </SafeAreaView>
     </ImageBackground>
   );
@@ -131,24 +117,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 40,    // Wider horizontal padding for that 2nd image look
   },
 
-  bottomNav: {
-    height: 100,
-    flexDirection: 'row',
-    backgroundColor: 'rgba(255, 255, 255, 0.85)',
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(0,0,0,0.05)',
-    paddingBottom: 10,
-  },
-  navItem: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  navText: {
-    fontSize: 16,
-    marginTop: 4,
-    color: '#4f7f6b',
-  },
+
 });
 
 export default GardenScreen;
