@@ -8,10 +8,12 @@ import { auth } from './src/firebaseConfig';
 import LoginScreen from './src/screens/LoginScreen';
 import RegisterScreen from './src/screens/RegisterScreen';
 import HomeScreen from './src/screens/HomeScreen';
+import HomeScreen2 from './src/screens/HomeScreen2';
 import ProfileScreen from './src/screens/Profile';
 import BreathingScreen from './src/screens/Breathing';
 import GardenScreen from './src/screens/Garden';
 import MeditationScreen from './src/screens/Meditation';
+import ProblemSolvingScreen from './src/screens/ProblemSolving';
 import MoodCalendarScreen from './src/screens/MoodCalendar';
 import StressTrackerScreen from './src/screens/StressTracker';
 import StressFormScreen from './src/screens/StressForm';
@@ -51,6 +53,11 @@ export default function App() {
               options={{ headerShown: false }}
             />
             <Stack.Screen
+              name="Home2"
+              component={HomeScreen2}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
               name="Profile"
               component={ProfileScreen}
               options={{ headerShown: false }}
@@ -68,6 +75,11 @@ export default function App() {
             <Stack.Screen
               name="Meditation"
               component={MeditationScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="ProblemSolving"
+              component={ProblemSolvingScreen}
               options={{ headerShown: false }}
             />
             <Stack.Screen
