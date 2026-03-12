@@ -75,10 +75,10 @@ export default function HomeScreen({ navigation }) {
               <Ionicons name="chevron-forward" size={24} color="#4f7f6b" />
             </TouchableOpacity>
 
-            {/* Meditation Sessions Card */}
+            {/* Troubleshooting Steps Card */}
             <TouchableOpacity
               style={styles.practiceCard}
-              onPress={() => navigation.navigate('Meditation')}
+              onPress={() => navigation.navigate('StressTracker')}
             >
               <View style={styles.iconContainer}>
                 <MaterialCommunityIcons

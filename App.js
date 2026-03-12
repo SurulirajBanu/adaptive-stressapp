@@ -17,8 +17,6 @@ import ProblemSolvingScreen from './src/screens/ProblemSolving';
 import MoodCalendarScreen from './src/screens/MoodCalendar';
 import StressTrackerScreen from './src/screens/StressTracker';
 import StressFormScreen from './src/screens/StressForm';
-import IdentifyStressScreen from './src/screens/IdentifyStress';
-import StressSolutionsScreen from './src/screens/StressSolutions';
 
 const Stack = createStackNavigator();
 
@@ -95,16 +93,6 @@ export default function App() {
             <Stack.Screen
               name="StressForm"
               component={StressFormScreen}
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name="IdentifyStress"
-              component={IdentifyStressScreen}
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name="StressSolutions"
-              component={StressSolutionsScreen}
               options={{ headerShown: false }}
             />
           </>
