@@ -9,10 +9,10 @@ import {
   Switch,
   Platform,
   Alert,
+  Modal,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import DateTimePicker from '@react-native-community/datetimepicker';
 import { auth } from '../firebaseConfig';
 import { signOut } from 'firebase/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -30,8 +30,14 @@ Notifications.setNotificationHandler({
 
 export default function ProfileScreen({ navigation }) {
   const [isReminderEnabled, setIsReminderEnabled] = useState(false);
-  const [date, setDate] = useState(new Date());
-  const [showPicker, setShowPicker] = useState(false);
+  const [hour, setHour] = useState(() => {
+    const h = new Date().getHours();
+    const displayH = h % 12 || 12;
+    return String(displayH).padStart(2, '0');
+  });
+  const [minute, setMinute] = useState(String(new Date().getMinutes()).padStart(2, '0'));
+  const [ampm, setAmpm] = useState(new Date().getHours() >= 12 ? 'PM' : 'AM');
+  const [showTimePickerModal, setShowTimePickerModal] = useState(false);
 
   // Load saved settings on component mount
   useEffect(() => {
@@ -39,9 +45,16 @@ export default function ProfileScreen({ navigation }) {
       try {
         const savedTime = await AsyncStorage.getItem('reminderTime');
         const savedEnabled = await AsyncStorage.getItem('reminderEnabled');
+        
         if (savedTime) {
-          setDate(new Date(savedTime));
+          const savedDate = new Date(savedTime);
+          const h = savedDate.getHours();
+          const displayH = h % 12 || 12;
+          setHour(String(displayH).padStart(2, '0'));
+          setMinute(String(savedDate.getMinutes()).padStart(2, '0'));
+          setAmpm(h >= 12 ? 'PM' : 'AM');
         }
+        
         if (savedEnabled) {
           setIsReminderEnabled(JSON.parse(savedEnabled));
         }
@@ -56,11 +69,19 @@ export default function ProfileScreen({ navigation }) {
     signOut(auth).catch(error => console.log('Logout Error:', error.message));
   };
 
-  const scheduleNotification = async (time) => {
+  const scheduleNotification = async () => {
     const { status } = await Notifications.requestPermissionsAsync();
     if (status !== 'granted') {
       Alert.alert('Permission required', 'Please enable notifications to receive reminders.');
       return;
+    }
+
+    // Convert 12-hour format to 24-hour format
+    let hour24 = parseInt(hour);
+    if (ampm === 'PM' && hour24 !== 12) {
+      hour24 += 12;
+    } else if (ampm === 'AM' && hour24 === 12) {
+      hour24 = 0;
     }
 
     await Notifications.cancelAllScheduledNotificationsAsync(); // Clear old reminders
@@ -71,11 +92,16 @@ export default function ProfileScreen({ navigation }) {
         body: 'A few moments of calm can make a big difference.',
       },
       trigger: {
-        hour: time.getHours(),
-        minute: time.getMinutes(),
+        hour: hour24,
+        minute: parseInt(minute),
         repeats: true, // Daily reminder
       },
     });
+
+    // Save the time
+    const now = new Date();
+    now.setHours(hour24, parseInt(minute), 0, 0);
+    await AsyncStorage.setItem('reminderTime', now.toISOString());
   };
 
   const handleReminderToggle = async (value) => {
@@ -83,25 +109,21 @@ export default function ProfileScreen({ navigation }) {
     await AsyncStorage.setItem('reminderEnabled', JSON.stringify(value));
 
     if (value) {
-      await scheduleNotification(date);
+      await scheduleNotification();
     } else {
       await Notifications.cancelAllScheduledNotificationsAsync();
     }
   };
 
-  const onDateChange = async (event, selectedDate) => {
-    const currentDate = selectedDate || date;
-    setShowPicker(Platform.OS === 'ios');
-    setDate(currentDate);
-
-    await AsyncStorage.setItem('reminderTime', currentDate.toISOString());
-    if (isReminderEnabled) {
-      await scheduleNotification(currentDate);
-    }
+  const handleSetTime = () => {
+    setShowTimePickerModal(true);
   };
 
-  const showTimepicker = () => {
-    setShowPicker(true);
+  const handleTimeConfirm = async () => {
+    setShowTimePickerModal(false);
+    if (isReminderEnabled) {
+      await scheduleNotification();
+    }
   };
 
   return (
@@ -131,21 +153,12 @@ export default function ProfileScreen({ navigation }) {
               />
             </View>
             {isReminderEnabled && (
-              <TouchableOpacity onPress={showTimepicker} style={styles.timeDisplay}>
+              <TouchableOpacity onPress={handleSetTime} style={styles.timeDisplay}>
+                <Ionicons name="time" size={20} color="#6FAF98" style={{ marginRight: 8 }} />
                 <Text style={styles.timeText}>
-                  {date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  {hour}:{minute} {ampm}
                 </Text>
               </TouchableOpacity>
-            )}
-            {showPicker && (
-              <DateTimePicker
-                testID="dateTimePicker"
-                value={date}
-                mode="time"
-                is24Hour={false}
-                display="spinner"
-                onChange={onDateChange}
-              />
             )}
           </View>
 
@@ -155,6 +168,94 @@ export default function ProfileScreen({ navigation }) {
         </View>
 
         <Navigation navigation={navigation} currentScreen="Profile" />
+
+        {/* Custom Time Picker Modal */}
+        <Modal
+          visible={showTimePickerModal}
+          transparent={true}
+          animationType="fade"
+          onRequestClose={() => setShowTimePickerModal(false)}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.timePickerModal}>
+              <View style={styles.timePickerModalHeader}>
+                <Text style={styles.timePickerModalHeaderTime}>{hour}:{minute} {ampm}</Text>
+              </View>
+
+              <View style={styles.timePickerModalContent}>
+                <View style={styles.timePickerModalSection}>
+                  <Text style={styles.timePickerModalLabel}>Hour</Text>
+                  <TouchableOpacity onPress={() => {
+                    let h = parseInt(hour) + 1;
+                    if (h > 12) h = 1;
+                    setHour(String(h).padStart(2, '0'));
+                  }}>
+                    <Ionicons name="chevron-up" size={28} color="#6FAF98" />
+                  </TouchableOpacity>
+                  <Text style={styles.timePickerModalValue}>{hour}</Text>
+                  <TouchableOpacity onPress={() => {
+                    let h = parseInt(hour) - 1;
+                    if (h < 1) h = 12;
+                    setHour(String(h).padStart(2, '0'));
+                  }}>
+                    <Ionicons name="chevron-down" size={28} color="#6FAF98" />
+                  </TouchableOpacity>
+                </View>
+
+                <Text style={styles.timePickerModalSeparator}>:</Text>
+
+                <View style={styles.timePickerModalSection}>
+                  <Text style={styles.timePickerModalLabel}>Minute</Text>
+                  <TouchableOpacity onPress={() => {
+                    let m = parseInt(minute) + 1;
+                    if (m > 59) m = 0;
+                    setMinute(String(m).padStart(2, '0'));
+                  }}>
+                    <Ionicons name="chevron-up" size={28} color="#6FAF98" />
+                  </TouchableOpacity>
+                  <Text style={styles.timePickerModalValue}>{minute}</Text>
+                  <TouchableOpacity onPress={() => {
+                    let m = parseInt(minute) - 1;
+                    if (m < 0) m = 59;
+                    setMinute(String(m).padStart(2, '0'));
+                  }}>
+                    <Ionicons name="chevron-down" size={28} color="#6FAF98" />
+                  </TouchableOpacity>
+                </View>
+              </View>
+
+              <View style={styles.timePickerModalAmPmContainer}>
+                <TouchableOpacity
+                  style={[styles.timePickerModalAmPmButton, ampm === 'AM' && styles.timePickerModalAmPmButtonActive]}
+                  onPress={() => setAmpm('AM')}
+                >
+                  <Text style={[styles.timePickerModalAmPmText, ampm === 'AM' && styles.timePickerModalAmPmTextActive]}>AM</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.timePickerModalAmPmButton, ampm === 'PM' && styles.timePickerModalAmPmButtonActive]}
+                  onPress={() => setAmpm('PM')}
+                >
+                  <Text style={[styles.timePickerModalAmPmText, ampm === 'PM' && styles.timePickerModalAmPmTextActive]}>PM</Text>
+                </TouchableOpacity>
+              </View>
+
+              <View style={styles.timePickerModalFooter}>
+                <TouchableOpacity
+                  style={styles.timePickerModalCancelButton}
+                  onPress={() => setShowTimePickerModal(false)}
+                >
+                  <Text style={styles.timePickerModalCancelButtonText}>CANCEL</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.timePickerModalOkButton}
+                  onPress={handleTimeConfirm}
+                >
+                  <Text style={styles.timePickerModalOkButtonText}>OK</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
 
       </SafeAreaView>
     </ImageBackground>
@@ -212,16 +313,21 @@ const styles = StyleSheet.create({
     color: '#2f4f4f',
   },
   timeDisplay: {
-    backgroundColor: 'rgba(230, 230, 230, 0.8)',
-    borderRadius: 10,
+    flexDirection: 'row',
+    backgroundColor: 'rgba(111, 175, 152, 0.1)',
+    borderRadius: 12,
     paddingVertical: 15,
+    paddingHorizontal: 16,
     alignItems: 'center',
+    justifyContent: 'center',
     marginTop: 20,
+    borderWidth: 1,
+    borderColor: '#6FAF98',
   },
   timeText: {
     fontSize: 22,
     fontWeight: 'bold',
-    color: '#4f7f6b',
+    color: '#2f4f4f',
   },
   logoutButton: {
     backgroundColor: '#6FAF98',
@@ -239,6 +345,119 @@ const styles = StyleSheet.create({
   logoutButtonText: {
     color: 'white',
     fontSize: 18,
+    fontWeight: '700',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  timePickerModal: {
+    backgroundColor: 'white',
+    borderRadius: 20,
+    paddingHorizontal: 0,
+    paddingVertical: 0,
+    width: '85%',
+    maxWidth: 340,
+    overflow: 'hidden',
+  },
+  timePickerModalHeader: {
+    backgroundColor: '#6FAF98',
+    paddingVertical: 24,
+    paddingHorizontal: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  timePickerModalHeaderTime: {
+    fontSize: 38,
+    fontWeight: '700',
+    color: 'white',
+  },
+  timePickerModalContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 30,
+    paddingHorizontal: 20,
+    gap: 20,
+  },
+  timePickerModalSection: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+  },
+  timePickerModalLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#4f7f6b',
+  },
+  timePickerModalValue: {
+    fontSize: 32,
+    fontWeight: '700',
+    color: '#2f4f4f',
+    minWidth: 60,
+    textAlign: 'center',
+  },
+  timePickerModalSeparator: {
+    fontSize: 28,
+    fontWeight: '700',
+    color: '#6FAF98',
+  },
+  timePickerModalAmPmContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 16,
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+    borderTopWidth: 1,
+    borderTopColor: '#e0e0e0',
+  },
+  timePickerModalAmPmButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#6FAF98',
+    backgroundColor: 'transparent',
+  },
+  timePickerModalAmPmButtonActive: {
+    backgroundColor: '#6FAF98',
+  },
+  timePickerModalAmPmText: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#6FAF98',
+  },
+  timePickerModalAmPmTextActive: {
+    color: 'white',
+  },
+  timePickerModalFooter: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    gap: 16,
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+    borderTopWidth: 1,
+    borderTopColor: '#e0e0e0',
+  },
+  timePickerModalCancelButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+  },
+  timePickerModalCancelButtonText: {
+    color: '#6FAF98',
+    fontSize: 14,
+    fontWeight: '700',
+  },
+  timePickerModalOkButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+  },
+  timePickerModalOkButtonText: {
+    color: '#6FAF98',
+    fontSize: 14,
     fontWeight: '700',
   },
 });
