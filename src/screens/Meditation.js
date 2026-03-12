@@ -17,19 +17,19 @@ import Navigation from '../components/Navigation';
 
 // Static audio file mapping
 const audioFiles = {
-    'breathing_1.mp3': require('../../assets/breathing_1.mp3'),
-    'breathing_2.mp3': require('../../assets/breathing_2.mp3'),
-    'breathing_3.mp3': require('../../assets/breathing_3.mp3'),
-    'breathing_4.mp3': require('../../assets/breathing_4.mp3'),
-    'breathing_5.mp3': require('../../assets/breathing_5.mp3'),
-    'breathing_6.mp3': require('../../assets/breathing_6.mp3'),
-    'breathing_7.mp3': require('../../assets/breathing_7.mp3'),
-    'breathing_8.mp3': require('../../assets/breathing_8.mp3'),
-    'breathing_9.mp3': require('../../assets/breathing_9.mp3'),
-    'breathing_10.mp3': require('../../assets/breathing_10.mp3'),
-    'breathing_11.mp3': require('../../assets/breathing_11.mp3'),
-    'breathing_12.mp3': require('../../assets/breathing_12.mp3'),
-    'breathing_13.mp3': require('../../assets/breathing_13.mp3'),
+    'breathing_1.mp3': require('../../assets/breathing-exercises/breathing_1.mp3'),
+    'breathing_2.mp3': require('../../assets/breathing-exercises/breathing_2.mp3'),
+    'breathing_3.mp3': require('../../assets/breathing-exercises/breathing_3.mp3'),
+    'breathing_4.mp3': require('../../assets/breathing-exercises/breathing_4.mp3'),
+    'breathing_5.mp3': require('../../assets/breathing-exercises/breathing_5.mp3'),
+    'breathing_6.mp3': require('../../assets/breathing-exercises/breathing_6.mp3'),
+    'breathing_7.mp3': require('../../assets/breathing-exercises/breathing_7.mp3'),
+    'breathing_8.mp3': require('../../assets/breathing-exercises/breathing_8.mp3'),
+    'breathing_9.mp3': require('../../assets/breathing-exercises/breathing_9.mp3'),
+    'breathing_10.mp3': require('../../assets/breathing-exercises/breathing_10.mp3'),
+    'breathing_11.mp3': require('../../assets/breathing-exercises/breathing_11.mp3'),
+    'breathing_12.mp3': require('../../assets/breathing-exercises/breathing_12.mp3'),
+    'breathing_13.mp3': require('../../assets/breathing-exercises/breathing_13.mp3'),
 };
 
 const MeditationScreen = ({ navigation }) => {

@@ -45,7 +45,7 @@ export default function ProfileScreen({ navigation }) {
       try {
         const savedTime = await AsyncStorage.getItem('reminderTime');
         const savedEnabled = await AsyncStorage.getItem('reminderEnabled');
-        
+
         if (savedTime) {
           const savedDate = new Date(savedTime);
           const h = savedDate.getHours();
@@ -54,7 +54,7 @@ export default function ProfileScreen({ navigation }) {
           setMinute(String(savedDate.getMinutes()).padStart(2, '0'));
           setAmpm(h >= 12 ? 'PM' : 'AM');
         }
-        
+
         if (savedEnabled) {
           setIsReminderEnabled(JSON.parse(savedEnabled));
         }
