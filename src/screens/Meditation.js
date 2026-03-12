@@ -13,6 +13,7 @@ import {
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Audio } from 'expo-av';
+import Navigation from '../components/Navigation';
 
 // Static audio file mapping
 const audioFiles = {
@@ -418,6 +419,7 @@ const MeditationScreen = ({ navigation }) => {
                         );
                     })}
                 </ScrollView>
+                <Navigation navigation={navigation} currentScreen="Meditation" />
             </SafeAreaView>
         </ImageBackground>
     );
