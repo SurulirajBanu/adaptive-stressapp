@@ -27,12 +27,21 @@ The app adapts to your usage - the more you practice self-care, the more your vi
 - **Stress Tracker**: Write down what's causing you stress, categorize it (work, relationships, health, etc.), and mark items as resolved when you've dealt with them
 - **Set Reminders**: Get gentle notifications to remind you to practice self-care or work on your solutions
 
-### 💡 Learn Coping Strategies
-- **Problem-Solving Lessons**: Listen to 12 audio lessons teaching you effective ways to handle stress and solve problems
-- **Troubleshooting Steps**: Create action plans for your stressors - identify the problem, brainstorm solutions, and set reminders to follow through
+### Set Up Daily Reminders
+- **Customizable Notifications**: Set daily reminder times for stress check-ins and practice sessions
+- **Time-based Triggers**: Schedule notifications for your preferred hours (morning, afternoon, evening)
+- **Easy Configuration**: Simple time picker interface in both Stress Tracker and Profile screens
 
-### 🌸 Watch Your Garden Grow
-- **Adaptive Garden**: Your personal virtual garden reflects your self-care habits. When you complete breathing exercises or meditations, your garden stays healthy and vibrant. If you haven't practiced in a while, the garden will show it needs attention - a gentle reminder to take care of yourself
+### Garden Health Tracking
+- **Auto-Refresh System**: Garden state updates in real-time as you complete exercises
+- **1-Hour Exercise Window**: Garden stays healthy for 1 hour after completing meditation or breathing exercises
+- **Practice Prompts**: "Practice Now" button appears when garden needs attention to encourage consistent habit-building
+
+### Weekly Wellness Check-ins  
+- **Mood Ratings**: Rate how you're feeling (Terrible → Bad → Okay → Good → Great) every week
+- **Modal Prompts**: Mood rating appears on app launch (testing mode shows every time; production shows weekly)
+- **No Skip Option**: Modal requires a mood selection - can't be dismissed without response
+- **Persistent Tracking**: Mood history saved to AsyncStorage for long-term wellness insights
 
 ---
 
@@ -70,12 +79,14 @@ This app is for anyone who:
 - **Navigation**: React Navigation (Stack & Bottom Tabs)
 
 ### Key Features Implementation
-- **Breathing exercises** (`Breathing.js`): Animated 4-7-8 style breathing with visual guidance
-- **Meditation sessions** (`Meditation.js`): Audio playlist with progress tracking and session unlocking
-- **Stress tracker** (`StressTracker.js`, `StressForm.js`): Persistent stress management with AsyncStorage
+- **Breathing exercises** (`Breathing.js`): Animated 4-7-8 style breathing with visual guidance; records exercise time when started
+- **Meditation sessions** (`Meditation.js`): Audio playlist with progress tracking and session unlocking; records exercise time when audio plays
+- **Stress tracker** (`StressForm.js`, `StressTracker.js`): Persistent stress management with AsyncStorage; includes back navigation and daily reminder scheduling
 - **Mood calendar** (`MoodCalendar.js`): Daily mood tracking with visual calendar display
 - **Problem-solving** (`ProblemSolving.js`): Audio lessons with structured coping strategies
-- **Adaptive garden** (`Garden.js`): Visual feedback based on recent practice activity
+- **Adaptive garden** (`Garden.js`): Visual feedback based on recent practice activity (healthy for 1 hour after exercises); updates every second; shows "Practice Now" button when unhealthy
+- **Daily Reminders** (`Profile.js`, `StressForm.js`): Time picker interface to set reminder times; uses `expo-notifications` with timeInterval triggers
+- **Weekly Mood Tracker** (`WeeklyMood.js`): Separate component for mood rating modal; shows on app launch; requires mood selection; persists data to AsyncStorage
 
 ### Project Structure
 ```
@@ -84,20 +95,21 @@ adaptive-stressapp/
 ├── src/
 │   ├── firebaseConfig.js     # Firebase initialization
 │   ├── components/
-│   │   └── Navigation.js     # Bottom navigation bar
+│   │   ├── Navigation.js     # Bottom navigation bar
+│   │   └── WeeklyMood.js     # Weekly mood rating modal component
 │   └── screens/
 │       ├── LoginScreen.js    # Email/password login
 │       ├── RegisterScreen.js # Account creation
 │       ├── HomeScreen.js     # Main practice hub (breathing & meditation)
 │       ├── HomeScreen2.js    # Secondary hub (problem-solving & stress)
-│       ├── Breathing.js      # Guided breathing exercise
-│       ├── Meditation.js     # Meditation audio player
-│       ├── Garden.js          # Adaptive garden visualization
+│       ├── Breathing.js      # Guided breathing exercise (records exercise time)
+│       ├── Meditation.js     # Meditation audio player (records exercise time)
+│       ├── Garden.js         # Adaptive garden visualization (1-hour health tracking)
 │       ├── StressTracker.js  # Stress list view
-│       ├── StressForm.js     # Add/edit stress items
+│       ├── StressForm.js     # Add/edit stress items with back button & reminders
 │       ├── ProblemSolving.js # Problem-solving audio lessons
 │       ├── MoodCalendar.js   # Mood tracking calendar
-│       └── Profile.js        # User settings and reminders
+│       └── Profile.js        # User settings, logout, and daily reminders
 └── assets/                   # Images and audio files
 ```
 
@@ -166,6 +178,30 @@ eas build --platform ios --profile production
 - Update `src/firebaseConfig.js` with your Firebase project credentials
 - Modify `app.json` for app metadata (name, version, icons)
 
+### Key Implementation Details
+
+#### Notifications System
+- Uses `expo-notifications` with `timeInterval` trigger format
+- Converts 12-hour time picker input to 24-hour format for scheduling
+- Android: Configured with MAX importance, vibration, and sound enabled
+- Stores reminder times in AsyncStorage (keys: `reminderTime`)
+- Reminders set from both `StressForm.js` and `Profile.js`
+
+#### Garden Health State
+- Tracks `lastExerciseTime` in AsyncStorage (ISO format string)
+- Exercise timeout: **3600 seconds (1 hour)**
+- Health check runs every 1 second via `setInterval`
+- Triggered when: Meditation audio plays OR Breathing exercise begins
+- Unhealthy state shows "Practice Now" button that navigates to Home
+
+#### Weekly Mood Tracking
+- Component: `WeeklyMoodTracker` (imported in `App.js`)
+- 5 emotion options: Terrible (1) → Bad (2) → Okay (3) → Good (4) → Great (5)
+- Shows modal on app launch (requires mood selection to dismiss)
+- **Testing mode**: Shows every app reopen (`setShowMoodRating(true)`)
+- **Production mode**: Change to weekly check (`daysDifference >= 7`)
+- Stores: `lastMoodRatingTime` and `userMood` JSON in AsyncStorage
+
 ---
 
 ## 🤝 Contributing
@@ -186,12 +222,14 @@ See `LICENSE` file for details.
 
 ## 💡 Tips for Users
 
-- **Build a routine**: Set daily reminders to practice breathing or meditation
+- **Build a routine**: Set daily reminders in your Profile to practice breathing or meditation at your favorite times
 - **Be honest**: Track your real feelings and stressors - this app is for you
 - **Start small**: Even 5 minutes of breathing can make a difference
-- **Check your garden**: Use it as a visual reminder to prioritize self-care
+- **Check your garden**: Use it as a visual reminder to prioritize self-care; "Practice Now" button appears when it needs attention
+- **Rate weekly**: Respond to the mood rating prompt to build a wellness history
 - **Unlock gradually**: Complete meditations in order to build a steady practice
 - **Explore both homes**: The app has two practice areas - try them both!
+- **Track stressors**: Add items to your stress tracker, then brainstorm solutions and set reminders to follow through
 
 ---
 
