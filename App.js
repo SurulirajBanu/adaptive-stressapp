@@ -7,6 +7,7 @@ import { auth } from './src/firebaseConfig';
 import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
 
+import { WeeklyMoodTracker } from './src/components/WeeklyMood';
 import LoginScreen from './src/screens/LoginScreen';
 import RegisterScreen from './src/screens/RegisterScreen';
 import HomeScreen from './src/screens/HomeScreen';
@@ -36,21 +37,19 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const notificationListener = useRef();
   const responseListener = useRef();
+  registerForPushNotificationsAsync();
+
+  // Listen for notifications received while app is foregrounded
+  notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
+    console.log('Notification received:', notification);
+  });
+
+  // Listen for user tapping on notifications
+  responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
+    console.log('Notification tapped:', response);
+  });
 
   useEffect(() => {
-    // Register for push notifications
-    registerForPushNotificationsAsync();
-
-    // Listen for notifications received while app is foregrounded
-    notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
-      console.log('Notification received:', notification);
-    });
-
-    // Listen for user tapping on notifications
-    responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
-      console.log('Notification tapped:', response);
-    });
-
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
       setLoading(false);
@@ -76,77 +75,80 @@ export default function App() {
   }
 
   return (
-    <NavigationContainer>
-      <Stack.Navigator>
-        {user ? (
-          <>
-            <Stack.Screen
-              name="Home"
-              component={HomeScreen}
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name="Home2"
-              component={HomeScreen2}
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name="Profile"
-              component={ProfileScreen}
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name="Breathing"
-              component={BreathingScreen}
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name="Garden"
-              component={GardenScreen}
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name="Meditation"
-              component={MeditationScreen}
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name="ProblemSolving"
-              component={ProblemSolvingScreen}
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name="MoodCalendar"
-              component={MoodCalendarScreen}
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name="StressTracker"
-              component={StressTrackerScreen}
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name="StressForm"
-              component={StressFormScreen}
-              options={{ headerShown: false }}
-            />
-          </>
-        ) : (
-          <>
-            <Stack.Screen
-              name="Login"
-              component={LoginScreen}
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name="Register"
-              component={RegisterScreen}
-              options={{ headerShown: false }}
-            />
-          </>
-        )}
-      </Stack.Navigator>
-    </NavigationContainer>
+    <>
+      <WeeklyMoodTracker user={user} />
+      <NavigationContainer>
+        <Stack.Navigator>
+          {user ? (
+            <>
+              <Stack.Screen
+                name="Home"
+                component={HomeScreen}
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name="Home2"
+                component={HomeScreen2}
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name="Profile"
+                component={ProfileScreen}
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name="Breathing"
+                component={BreathingScreen}
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name="Garden"
+                component={GardenScreen}
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name="Meditation"
+                component={MeditationScreen}
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name="ProblemSolving"
+                component={ProblemSolvingScreen}
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name="MoodCalendar"
+                component={MoodCalendarScreen}
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name="StressTracker"
+                component={StressTrackerScreen}
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name="StressForm"
+                component={StressFormScreen}
+                options={{ headerShown: false }}
+              />
+            </>
+          ) : (
+            <>
+              <Stack.Screen
+                name="Login"
+                component={LoginScreen}
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name="Register"
+                component={RegisterScreen}
+                options={{ headerShown: false }}
+              />
+            </>
+          )}
+        </Stack.Navigator>
+      </NavigationContainer>
+    </>
   );
 }
 
