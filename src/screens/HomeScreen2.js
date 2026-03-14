@@ -55,11 +55,11 @@ export default function HomeScreen({ navigation }) {
         </View>
 
         <View style={styles.content}>
-          <View>
-            <Text style={styles.subtitle}>
-              Welcome {userName}, Calm your mind and body through guided exercises
-            </Text>
+          <Text style={styles.subtitle}>
+            Welcome {userName}, Develop coping strategies to solve problems effectively
+          </Text>
 
+          <View>
             {/* Breathing Exercises Card */}
             <TouchableOpacity
               style={styles.practiceCard}
@@ -141,11 +141,11 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    justifyContent: 'center',
     paddingHorizontal: 20,
+    paddingTop: 16,
   },
   subtitle: {
-    fontSize: 18,
+    fontSize: 16,
     color: '#4f7f6b',
     textAlign: 'center',
     marginBottom: 30,

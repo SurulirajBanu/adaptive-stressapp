@@ -1,196 +1,200 @@
-## adaptive-stressapp
+# 🌱 Adaptive Stress App
 
-Adaptive Stress App is a **React Native / Expo mobile application** that helps users understand and manage their stress over time through guided practices, tracking tools, and a visual “garden” that reflects their self‑care habits.
+> A mobile wellness companion that helps you understand, track, and manage stress through guided practices and personalized insights.
 
-The app uses **Firebase Authentication** for login/registration and stores local state (e.g. stress items) with **AsyncStorage**.
+## 📖 What is this app?
 
-## Core features
+The Adaptive Stress App is a mobile application designed to help people cope with stress in their daily lives. Think of it as a personal wellness coach in your pocket that guides you through:
 
-- **Onboarding & auth**
-  - Email/password login and registration using Firebase (`LoginScreen`, `RegisterScreen`).
-  - Persistent authentication with React Native persistence (`firebaseConfig.js`).
+- **Calming breathing exercises** when you feel overwhelmed
+- **Guided meditation sessions** to clear your mind
+- **Stress tracking tools** to understand what's bothering you
+- **Problem-solving strategies** to tackle life's challenges
+- **A virtual garden** that grows healthier as you take care of yourself
 
-- **Practice tools**
-  - **Breathing exercises** (`Breathing.js`): animated 4–7–8 style breathing ball with visual guidance.
-  - **Meditation sessions** (`Meditation.js`): playlist of guided audio meditations using `expo-av`, with progress bar and session unlocking.
+The app adapts to your usage - the more you practice self-care, the more your virtual garden flourishes, providing a visual reminder of your progress.
 
-- **Stress tracking & reflection**
-  - **Stress tracker** (`StressTracker.js` / `StressForm.js`): track sources of stress, mark as solved, and persist them in `AsyncStorage`.
-  - **Mood calendar** (`MoodCalendar.js`): view mood history over time (see screen for exact UI/behavior).
-  - **Problem‑solving & coping** (`ProblemSolving.js`): structured space to think through stressors (see screen implementation).
+---
 
-- **Adaptive garden**
-  - **Garden view** (`Garden.js`): a visual garden that changes based on recent practice.
-  - Uses `AsyncStorage` to check when the last exercise was completed and shows healthy/unhealthy garden images accordingly.
+## ✨ What can you do with this app?
 
-- **Navigation & layout**
-  - Stack navigation defined in `App.js` via `@react-navigation/native` and `@react-navigation/stack`.
-  - Bottom navigation bar component (`Navigation.js`) for quick access to Home, Garden, Mood Calendar, Stress, and Profile.
+### 🧘 Practice Mindfulness
+- **Breathing Exercises**: Follow a gentle animated guide that helps you breathe slowly and deeply using the 4-7-8 breathing technique
+- **Meditation Sessions**: Listen to 13 different guided meditations covering topics like mindfulness, body scans, and compassion. Sessions unlock as you complete them, encouraging regular practice
 
-## Tech stack
+### 📊 Track Your Wellbeing
+- **Mood Calendar**: Record how you're feeling each day and see patterns over time with a visual calendar
+- **Stress Tracker**: Write down what's causing you stress, categorize it (work, relationships, health, etc.), and mark items as resolved when you've dealt with them
+- **Set Reminders**: Get gentle notifications to remind you to practice self-care or work on your solutions
 
-- **Framework**: React Native with **Expo** (see `app.json` and `package.json`).
-- **Routing**: `@react-navigation/native`, `@react-navigation/stack`.
-- **Auth & backend**: Firebase (`firebase/app`, `firebase/auth`).
-- **Storage**: `@react-native-async-storage/async-storage` for on‑device persistence.
-- **Media & UI**:
-  - `expo-av` for audio playback.
-  - `expo-linear-gradient` for gradients.
-  - `@expo/vector-icons` (Ionicons, MaterialCommunityIcons) for icons.
+### 💡 Learn Coping Strategies
+- **Problem-Solving Lessons**: Listen to 12 audio lessons teaching you effective ways to handle stress and solve problems
+- **Troubleshooting Steps**: Create action plans for your stressors - identify the problem, brainstorm solutions, and set reminders to follow through
 
-## Project structure (high level)
+### 🌸 Watch Your Garden Grow
+- **Adaptive Garden**: Your personal virtual garden reflects your self-care habits. When you complete breathing exercises or meditations, your garden stays healthy and vibrant. If you haven't practiced in a while, the garden will show it needs attention - a gentle reminder to take care of yourself
 
-At the repo root:
+---
 
-- `App.js` – Root app component, sets up navigation and auth state listener.
-- `index.js` – Expo entry point that registers `App`.
-- `app.json` – Expo app configuration (name, icons, splash, platforms).
-- `package.json` / `package-lock.json` – Dependencies and npm scripts.
-- `LICENSE` – License for this project.
-- `Agents.md` – Guidelines for AI agents working on this repo.
-- `.gitignore`, `.idea/` – Git and IDE/project configuration.
+## 🎯 Who is this for?
 
-Source code lives under `src/`:
+This app is for anyone who:
+- Feels stressed or overwhelmed and wants practical tools to cope
+- Wants to build a regular mindfulness or meditation practice
+- Likes to track their moods and understand their emotional patterns
+- Needs help organizing and solving life's problems
+- Appreciates visual reminders of their progress and self-care habits
 
-- `src/firebaseConfig.js` – Firebase initialization and React Native auth persistence.
-- `src/components/`
-  - `Navigation.js` – Bottom navigation bar used across main screens.
-- `src/screens/`
-  - `LoginScreen.js` – Email/password login with Firebase.
-  - `RegisterScreen.js` – Account creation and nickname setup.
-  - `HomeScreen.js`, `HomeScreen2.js` – Main practice/home views.
-  - `Breathing.js` – Animated breathing exercise screen.
-  - `Meditation.js` – Audio meditation list and player.
-  - `Garden.js` – Adaptive garden visualization based on recent practice.
-  - `StressTracker.js` – List of stress sources stored in `AsyncStorage`.
-  - `StressForm.js` – Form for adding/editing a stress source.
-  - `ProblemSolving.js` – Problem‑solving / coping strategy screen.
-  - `MoodCalendar.js` – Mood tracking calendar.
-  - `Profile.js` – User profile/settings screen.
+---
 
-Assets such as backgrounds, garden images, and breathing audio live under the `assets/` directory (referenced via `require('../../assets/...')` in screens).
+## 📱 How to use the app
 
-## Getting started
+1. **Sign up** with your email and password (or log in if you already have an account)
+2. **Explore the Practice screens** to try breathing exercises or start your first meditation
+3. **Track your mood** daily to see how you feel over time
+4. **Add stressors** you're dealing with and brainstorm solutions
+5. **Listen to problem-solving lessons** to learn new coping strategies
+6. **Check your garden** to see how your self-care habits are reflected visually
+7. **Set up reminders** in your Profile to maintain regular practice
+
+---
+
+## 🏗️ Technical Overview
+<sub>*This section is for developers and technical users*</sub>
+
+### Built With
+- **Platform**: React Native with Expo
+- **Authentication**: Firebase Authentication
+- **Storage**: AsyncStorage (local device storage)
+- **Audio**: Expo AV for meditation playback
+- **Navigation**: React Navigation (Stack & Bottom Tabs)
+
+### Key Features Implementation
+- **Breathing exercises** (`Breathing.js`): Animated 4-7-8 style breathing with visual guidance
+- **Meditation sessions** (`Meditation.js`): Audio playlist with progress tracking and session unlocking
+- **Stress tracker** (`StressTracker.js`, `StressForm.js`): Persistent stress management with AsyncStorage
+- **Mood calendar** (`MoodCalendar.js`): Daily mood tracking with visual calendar display
+- **Problem-solving** (`ProblemSolving.js`): Audio lessons with structured coping strategies
+- **Adaptive garden** (`Garden.js`): Visual feedback based on recent practice activity
+
+### Project Structure
+```
+adaptive-stressapp/
+├── App.js                    # Main app component with navigation
+├── src/
+│   ├── firebaseConfig.js     # Firebase initialization
+│   ├── components/
+│   │   └── Navigation.js     # Bottom navigation bar
+│   └── screens/
+│       ├── LoginScreen.js    # Email/password login
+│       ├── RegisterScreen.js # Account creation
+│       ├── HomeScreen.js     # Main practice hub (breathing & meditation)
+│       ├── HomeScreen2.js    # Secondary hub (problem-solving & stress)
+│       ├── Breathing.js      # Guided breathing exercise
+│       ├── Meditation.js     # Meditation audio player
+│       ├── Garden.js          # Adaptive garden visualization
+│       ├── StressTracker.js  # Stress list view
+│       ├── StressForm.js     # Add/edit stress items
+│       ├── ProblemSolving.js # Problem-solving audio lessons
+│       ├── MoodCalendar.js   # Mood tracking calendar
+│       └── Profile.js        # User settings and reminders
+└── assets/                   # Images and audio files
+```
+
+---
+
+## 🚀 For Developers: Getting Started
 
 ### Prerequisites
-
-- **Node.js** (recommended LTS)
-- **npm** or **yarn**
-- **Expo CLI** (installed globally): `npm install -g expo-cli` (or use `npx expo` commands)
-
-You will also need a Firebase project if you want to use your own backend keys; update `src/firebaseConfig.js` accordingly.
+- Node.js (LTS version recommended)
+- npm or yarn
+- Expo CLI: `npm install -g expo-cli`
+- Firebase project (for authentication)
 
 ### Installation
 
 ```bash
+# Clone the repository
 git clone <your-repo-url>
 cd adaptive-stressapp
+
+# Install dependencies
 npm install
-# or
-yarn
 ```
 
-### Running the mobile app (Expo)
-
-From the project root:
+### Running the App
 
 ```bash
+# Start the development server
 npm start
-# or
-yarn start
+
+# Run on Android emulator
+npm run android
+
+# Run on iOS simulator (macOS only)
+npm run ios
 ```
 
-This starts the **Expo dev server** (`expo start` under the hood).
+### Using Expo Go App
+1. Install Expo Go from App Store or Google Play
+2. Run `npm start` in the project directory
+3. Scan the QR code with Expo Go app
 
-- **Physical device (Expo Go)**:
-  - Install the Expo Go app from the App Store / Google Play.
-  - Scan the QR code shown in the terminal or browser.
+### Building for Production
 
-- **Android emulator**:
-  - Start an Android emulator from Android Studio.
-  - Then run:
-    ```bash
-    npm run android
-    # or
-    yarn android
-    ```
+```bash
+# Install EAS CLI
+npm install -g eas-cli
 
-- **iOS simulator (macOS only)**:
-  - Install Xcode and open at least one iOS Simulator.
-  - Then run:
-    ```bash
-    npm run ios
-    # or
-    yarn ios
-    ```
+# Login to Expo
+eas login
 
-See the `scripts` section of `package.json` for available commands.
+# Configure build
+eas build:configure
 
-### Building installable binaries (APK / AAB) with Expo
+# Build Android APK
+eas build --platform android --profile preview
 
-This project uses Expo, so you can build distributable binaries using **EAS Build** (recommended) or the classic build system.
+# Build for production (AAB for Google Play)
+eas build --platform android --profile production
 
-- **1. Login and configure Expo account (once)**
-  ```bash
-  npx expo login
-  npx expo whoami
-  ```
+# Build for iOS
+eas build --platform ios --profile production
+```
 
-- **2. Configure EAS (once per project)**
-  ```bash
-  npx expo install eas-cli
-  npx eas build:configure
-  ```
+### Configuration
+- Update `src/firebaseConfig.js` with your Firebase project credentials
+- Modify `app.json` for app metadata (name, version, icons)
 
-- **3. Android build (APK or AAB)**
-  - For a debug/sandbox APK (easy to share for testing):
-    ```bash
-    npx eas build --platform android --profile preview
-    ```
-  - For a store upload build (AAB by default):
-    ```bash
-    npx eas build --platform android --profile production
-    ```
-  - After the build finishes, Expo will give you a **URL** to download the APK/AAB.
+---
 
-- **4. iOS build**
-  ```bash
-  npx eas build --platform ios --profile production
-  ```
-  Expo will guide you through Apple credentials and provisioning.
+## 🤝 Contributing
 
-You can customize build profiles (`preview`, `production`, etc.) in `eas.json` if you add one.
+This is an academic/personal project. For major changes or improvements:
+1. Review `Agents.md` for project guidelines
+2. Follow the existing design patterns and code style
+3. Test thoroughly on both iOS and Android
+4. Keep user experience simple and intuitive
 
-### Sharing builds
+---
 
-- **Direct APK sharing (Android)**:
-  - Use the APK URL from EAS or download the APK and share it via email, Drive, etc.
-  - On the test device, enable “Install from unknown sources” and tap the APK to install.
+## 📄 License
 
-- **Store distribution**:
-  - **Android**: upload the generated AAB (or APK) to Google Play Console.
-  - **iOS**: upload the iOS build to App Store Connect (via EAS) and configure TestFlight / App Store distribution.
+See `LICENSE` file for details.
 
-## Environment & configuration
+---
 
-- **Firebase**: The current `src/firebaseConfig.js` is configured for a specific Firebase project.  
-  - To use your own project, replace the `firebaseConfig` values with your keys.
-  - Keep keys that should remain private out of version control where appropriate.
+## 💡 Tips for Users
 
-## Development guidelines
+- **Build a routine**: Set daily reminders to practice breathing or meditation
+- **Be honest**: Track your real feelings and stressors - this app is for you
+- **Start small**: Even 5 minutes of breathing can make a difference
+- **Check your garden**: Use it as a visual reminder to prioritize self-care
+- **Unlock gradually**: Complete meditations in order to build a steady practice
+- **Explore both homes**: The app has two practice areas - try them both!
 
-- **Follow existing design**:
-  - Use the same color palette, typography, and layout approaches as in the existing screens.
-  - Reuse components like `Navigation` where possible.
-- **State & storage**:
-  - Prefer `AsyncStorage` for simple local persistence (as used in `StressTracker` and garden logic).
-  - Keep Firebase usage consistent with `firebaseConfig.js`.
-- **Audio & assets**:
-  - When adding new meditations or breathing tracks, follow the pattern in `Meditation.js` and update the static `audioFiles` map.
+---
 
-For guidance on how AI agents should work with this project, see `Agents.md`.
-
-## License
-
-See `LICENSE` for licensing details.
-
+<div align="center">
+  <sub>Made with 💚 for mental wellness and stress management</sub>
+</div>
