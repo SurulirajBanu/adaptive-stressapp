@@ -196,9 +196,16 @@ export default function StressForm({ navigation, route }) {
                 >
                     <ScrollView contentContainerStyle={styles.content}>
                         <View style={styles.header}>
+                            <TouchableOpacity
+                                style={styles.backButton}
+                                onPress={() => navigation.goBack()}
+                            >
+                                <Ionicons name="arrow-back" size={28} color="#2f4f4f" />
+                            </TouchableOpacity>
                             <Text style={styles.headerTitle}>
                                 {isEditing ? 'Edit Stress' : 'Add Stress Source'}
                             </Text>
+                            <View style={styles.backButton} />
                         </View>
 
                         {/* Identify Your Stress Section */}
@@ -275,7 +282,7 @@ export default function StressForm({ navigation, route }) {
 
                             <View style={styles.reminderSection}>
                                 <View style={styles.reminderHeader}>
-                                    <Ionicons name="notifications-outline" size={20} color="#4f7f6b" />
+                                    <Ionicons name="notifications-outline" size={24} color="#4f7f6b" />
                                     <Text style={styles.reminderLabel}>Remind me</Text>
                                     <Switch
                                         value={reminderEnabled}
@@ -291,7 +298,7 @@ export default function StressForm({ navigation, route }) {
                                             style={styles.datePickerButton}
                                             onPress={() => setShowDatePicker(true)}
                                         >
-                                            <Ionicons name="calendar" size={20} color="#6FAF98" />
+                                            <Ionicons name="calendar" size={24} color="#6FAF98" />
                                             <Text style={styles.datePickerButtonText}>
                                                 {month}/{day}/{year}
                                             </Text>
@@ -301,7 +308,7 @@ export default function StressForm({ navigation, route }) {
                                             style={styles.datePickerButton}
                                             onPress={() => setShowTimePickerModal(true)}
                                         >
-                                            <Ionicons name="time" size={20} color="#6FAF98" />
+                                            <Ionicons name="time" size={24} color="#6FAF98" />
                                             <Text style={styles.datePickerButtonText}>
                                                 {hour}:{minute} {ampm}
                                             </Text>
@@ -440,7 +447,7 @@ const styles = StyleSheet.create({
     header: {
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'center',
+        justifyContent: 'space-between',
         paddingHorizontal: 16,
         paddingTop: 40,
         paddingBottom: 12,
@@ -449,7 +456,14 @@ const styles = StyleSheet.create({
         borderBottomColor: '#e0e0e0',
         marginBottom: 24,
     },
+    backButton: {
+        width: 40,
+        height: 40,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
     headerTitle: {
+        flex: 1,
         fontSize: 24,
         fontWeight: '700',
         color: '#333',
@@ -459,13 +473,13 @@ const styles = StyleSheet.create({
         marginBottom: 24,
     },
     sectionTitle: {
-        fontSize: 18,
+        fontSize: 20,
         fontWeight: 'bold',
         color: '#2f4f4f',
         marginBottom: 8,
     },
     subtitle: {
-        fontSize: 14,
+        fontSize: 16,
         color: '#4f7f6b',
         marginBottom: 16,
     },
@@ -473,7 +487,7 @@ const styles = StyleSheet.create({
         marginBottom: 20,
     },
     label: {
-        fontSize: 14,
+        fontSize: 16,
         fontWeight: '600',
         color: '#2f4f4f',
         marginBottom: 8,
@@ -483,7 +497,7 @@ const styles = StyleSheet.create({
         borderRadius: 12,
         padding: 12,
         minHeight: 100,
-        fontSize: 14,
+        fontSize: 16,
         color: '#2f4f4f',
         borderWidth: 1,
         borderColor: 'rgba(0,0,0,0.05)',
@@ -517,7 +531,7 @@ const styles = StyleSheet.create({
         borderColor: '#6FAF98',
     },
     categoryButtonText: {
-        fontSize: 12,
+        fontSize: 14,
         fontWeight: '600',
         color: '#4f7f6b',
     },
@@ -542,7 +556,7 @@ const styles = StyleSheet.create({
     },
     reminderLabel: {
         flex: 1,
-        fontSize: 14,
+        fontSize: 16,
         fontWeight: '600',
         color: '#2f4f4f',
         marginLeft: 12,
@@ -615,7 +629,7 @@ const styles = StyleSheet.create({
     },
     saveButtonText: {
         color: 'white',
-        fontSize: 16,
+        fontSize: 18,
         fontWeight: '700',
     },
     timePickerContainer: {

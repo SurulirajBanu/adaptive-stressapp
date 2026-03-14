@@ -70,7 +70,7 @@ export default function StressTracker({ navigation }) {
             >
                 <Ionicons
                     name={item.solved ? 'checkmark-circle' : 'ellipse-outline'}
-                    size={24}
+                    size={32}
                     color={item.solved ? '#6FAF98' : '#ccc'}
                 />
             </TouchableOpacity>
@@ -98,7 +98,7 @@ export default function StressTracker({ navigation }) {
             </View>
 
             <TouchableOpacity onPress={() => deleteStressItem(item.id)}>
-                <Ionicons name="trash-outline" size={20} color="#FF6B6B" />
+                <Ionicons name="trash-outline" size={28} color="#FF6B6B" />
             </TouchableOpacity>
         </TouchableOpacity>
     );
@@ -122,7 +122,7 @@ export default function StressTracker({ navigation }) {
 
                 {stressItems.length === 0 ? (
                     <View style={styles.emptyState}>
-                        <MaterialCommunityIcons name="inbox-outline" size={60} color="#ccc" />
+                        <MaterialCommunityIcons name="inbox-outline" size={80} color="#ccc" />
                         <Text style={styles.emptyText}>No stress sources yet</Text>
                         <Text style={styles.emptySubtext}>
                             Identify and track what's causing you stress
@@ -142,7 +142,7 @@ export default function StressTracker({ navigation }) {
                     style={styles.addButton}
                     onPress={() => navigation.navigate('StressForm')}
                 >
-                    <Ionicons name="add" size={24} color="white" />
+                    <Ionicons name="add" size={32} color="white" />
                     <Text style={styles.addButtonText}>Add Stress Source</Text>
                 </TouchableOpacity>
 
@@ -191,13 +191,13 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
     },
     emptyText: {
-        fontSize: 18,
+        fontSize: 20,
         fontWeight: '600',
         color: '#2f4f4f',
         marginTop: 16,
     },
     emptySubtext: {
-        fontSize: 14,
+        fontSize: 16,
         color: '#4f7f6b',
         marginTop: 8,
         textAlign: 'center',
@@ -234,12 +234,12 @@ const styles = StyleSheet.create({
         marginBottom: 6,
     },
     categoryText: {
-        fontSize: 12,
+        fontSize: 14,
         fontWeight: '600',
         color: 'white',
     },
     stressDescription: {
-        fontSize: 14,
+        fontSize: 16,
         fontWeight: '500',
         color: '#2f4f4f',
         marginBottom: 4,
@@ -249,7 +249,7 @@ const styles = StyleSheet.create({
         color: '#999',
     },
     solutionText: {
-        fontSize: 12,
+        fontSize: 14,
         color: '#6FAF98',
         marginTop: 4,
     },
@@ -271,7 +271,7 @@ const styles = StyleSheet.create({
     },
     addButtonText: {
         color: 'white',
-        fontSize: 16,
+        fontSize: 18,
         fontWeight: '600',
         marginLeft: 8,
     },
