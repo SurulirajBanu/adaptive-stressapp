@@ -13,7 +13,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Audio } from 'expo-av';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import Navigation from '../components/Navigation';
 
 // Static audio file mapping
@@ -405,11 +404,11 @@ const ProblemSolvingScreen = ({ navigation }) => {
                                     </View>
 
                                     {/* Progress Bar */}
-                                    {isPlaying && currentLessonId === lesson.id && duration > 0 && (
+                                    {currentLessonId === lesson.id && duration > 0 && (
                                         <View style={styles.progressContainer}>
                                             <View
                                                 ref={progressViewRef}
-                                                compare-horizontal             {...(panResponderRef.current ? panResponderRef.current.panHandlers : {})}
+                                                {...(panResponderRef.current ? panResponderRef.current.panHandlers : {})}
                                                 onLayout={(event) => {
                                                     setProgressBarWidth(event.nativeEvent.layout.width);
                                                 }}

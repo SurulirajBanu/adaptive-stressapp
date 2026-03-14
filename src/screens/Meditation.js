@@ -13,7 +13,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Audio } from 'expo-av';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import Navigation from '../components/Navigation';
 
 // Static audio file mapping
@@ -414,7 +413,7 @@ const MeditationScreen = ({ navigation }) => {
                                     </View>
 
                                     {/* Progress Bar */}
-                                    {isPlaying && currentMeditationId === meditation.id && duration > 0 && (
+                                    {currentMeditationId === meditation.id && duration > 0 && (
                                         <View style={styles.progressContainer}>
                                             <View
                                                 ref={progressViewRef}
