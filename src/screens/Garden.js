@@ -138,18 +138,19 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     alignItems: 'center',
-    justifyContent: 'flex-start',
+    justifyContent: 'space-between',
     paddingTop: 20,
+    paddingBottom: 20,
   },
 
   gardenImage: {
     width: width,
     height: height * 0.5,
-    marginVertical: 12,
+    marginVertical: 0,
   },
 
   gardenText: {
-    fontSize: 18,
+    fontSize: 26,
     color: '#4f7f6b',
     textAlign: 'center',
     paddingHorizontal: 40,

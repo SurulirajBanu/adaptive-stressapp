@@ -1,104 +1,49 @@
 import React from 'react';
 import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { useNavigationVisibility, NAV_ITEMS } from '../BuildVersionControl';
 
 export default function Navigation({ navigation, currentScreen }) {
+    // Get visibility level from context
+    const visibilityLevel = useNavigationVisibility();
+
+    // Filter items based on the current visibility level
+    const visibleItems = NAV_ITEMS.filter(item =>
+        item.visibilityLevels.includes(visibilityLevel)
+    );
+
+    const renderIcon = (item) => {
+        const color = currentScreen === item.screenName ? '#6FAF98' : '#4f7f6b';
+        if (item.iconFamily === 'Ionicons') {
+            return <Ionicons name={item.icon} size={30} color={color} />;
+        }
+        return <MaterialCommunityIcons name={item.icon} size={30} color={color} />;
+    };
+
     return (
         <View style={styles.bottomNav}>
-            <TouchableOpacity
-                style={styles.navItem}
-                onPress={() => navigation.navigate('Home')}
-            >
-                <Ionicons
-                    name="home"
-                    size={30}
-                    color={currentScreen === 'Home' ? '#6FAF98' : '#4f7f6b'}
-                />
-                <Text
-                    style={[
-                        styles.navText,
-                        { color: currentScreen === 'Home' ? '#6FAF98' : '#4f7f6b' },
-                    ]}
+            {visibleItems.map((item) => (
+                <TouchableOpacity
+                    key={item.screenName}
+                    style={styles.navItem}
+                    onPress={() => navigation.navigate(item.screenName)}
                 >
-                    Home
-                </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-                style={styles.navItem}
-                onPress={() => navigation.navigate('Home2')}
-            >
-                <Ionicons
-                    name="home"
-                    size={30}
-                    color={currentScreen === 'Home2' ? '#6FAF98' : '#4f7f6b'}
-                />
-                <Text
-                    style={[
-                        styles.navText,
-                        { color: currentScreen === 'Home2' ? '#6FAF98' : '#4f7f6b' },
-                    ]}
-                >
-                    Home2
-                </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-                style={styles.navItem}
-                onPress={() => navigation.navigate('Garden')}
-            >
-                <MaterialCommunityIcons
-                    name="flower-tulip"
-                    size={30}
-                    color={currentScreen === 'Garden' ? '#6FAF98' : '#4f7f6b'}
-                />
-                <Text
-                    style={[
-                        styles.navText,
-                        { color: currentScreen === 'Garden' ? '#6FAF98' : '#4f7f6b' },
-                    ]}
-                >
-                    Garden
-                </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-                style={styles.navItem}
-                onPress={() => navigation.navigate('MoodCalendar')}
-            >
-                <MaterialCommunityIcons
-                    name="calendar-heart"
-                    size={30}
-                    color={currentScreen === 'MoodCalendar' ? '#6FAF98' : '#4f7f6b'}
-                />
-                <Text
-                    style={[
-                        styles.navText,
-                        { color: currentScreen === 'MoodCalendar' ? '#6FAF98' : '#4f7f6b' },
-                    ]}
-                >
-                    Mood
-                </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-                style={styles.navItem}
-                onPress={() => navigation.navigate('Profile')}
-            >
-                <Ionicons
-                    name="person"
-                    size={30}
-                    color={currentScreen === 'Profile' ? '#6FAF98' : '#4f7f6b'}
-                />
-                <Text
-                    style={[
-                        styles.navText,
-                        { color: currentScreen === 'Profile' ? '#6FAF98' : '#4f7f6b' },
-                    ]}
-                >
-                    Profile
-                </Text>
-            </TouchableOpacity>
+                    {renderIcon(item)}
+                    <Text
+                        style={[
+                            styles.navText,
+                            {
+                                color:
+                                    currentScreen === item.screenName
+                                        ? '#6FAF98'
+                                        : '#4f7f6b',
+                            },
+                        ]}
+                    >
+                        {item.name}
+                    </Text>
+                </TouchableOpacity>
+            ))}
         </View>
     );
 }

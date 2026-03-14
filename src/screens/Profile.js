@@ -10,6 +10,7 @@ import {
   Platform,
   Alert,
   Modal,
+  ScrollView,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
@@ -18,8 +19,10 @@ import { signOut } from 'firebase/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Notifications from 'expo-notifications';
 import Navigation from '../components/Navigation';
+import { useNavigationVisibilityControl, NAV_VISIBILITY_LEVELS } from '../BuildVersionControl';
 
 export default function ProfileScreen({ navigation }) {
+  const { visibilityLevel, setVisibilityLevel } = useNavigationVisibilityControl();
   const [isReminderEnabled, setIsReminderEnabled] = useState(false);
   const [hour, setHour] = useState(() => {
     const h = new Date().getHours();
@@ -152,9 +155,11 @@ export default function ProfileScreen({ navigation }) {
     setShowTimePickerModal(true);
   };
 
-  const handleTimeConfirm = async () => {
+  const handleModalOk = () => {
     setShowTimePickerModal(false);
+  };
 
+  const handleTimeConfirm = async () => {
     // Save the selected time
     let hour24 = parseInt(hour);
     if (ampm === 'PM' && hour24 !== 12) {
@@ -178,6 +183,17 @@ export default function ProfileScreen({ navigation }) {
     }, 2500);
   };
 
+  const handleVisibilityLevelChange = async (newLevel) => {
+    try {
+      await AsyncStorage.setItem('navVisibilityLevel', String(newLevel));
+      setVisibilityLevel(newLevel);
+      Alert.alert('Success', `Build version changed to Level ${newLevel}`);
+    } catch (error) {
+      console.error('Error changing visibility level:', error);
+      Alert.alert('Error', 'Failed to change build version');
+    }
+  };
+
   return (
     <ImageBackground
       source={require('../../assets/background.png')}
@@ -196,32 +212,58 @@ export default function ProfileScreen({ navigation }) {
         </View>
 
         <View style={styles.content}>
-          <View style={styles.reminderCard}>
-            <Text style={styles.cardTitle}>Practice Reminder</Text>
-            <View style={styles.remindMeRow}>
-              <Text style={styles.remindMeText}>Remind Me Daily</Text>
-              <Switch
-                trackColor={{ false: '#767577', true: '#6FAF98' }}
-                thumbColor={isReminderEnabled ? '#f4f3f4' : '#f4f3f4'}
-                ios_backgroundColor="#3e3e3e"
-                onValueChange={handleReminderToggle}
-                value={isReminderEnabled}
-              />
+          <ScrollView>
+            <View style={styles.reminderCard}>
+              <Text style={styles.cardTitle}>Practice Reminder</Text>
+              <View style={styles.remindMeRow}>
+                <Text style={styles.remindMeText}>Remind Me Daily</Text>
+                <Switch
+                  trackColor={{ false: '#767577', true: '#6FAF98' }}
+                  thumbColor={isReminderEnabled ? '#f4f3f4' : '#f4f3f4'}
+                  ios_backgroundColor="#3e3e3e"
+                  onValueChange={handleReminderToggle}
+                  value={isReminderEnabled}
+                />
+              </View>
+              {isReminderEnabled && (
+                <View>
+                  <TouchableOpacity onPress={handleSetTime} style={styles.timeDisplay}>
+                    <Ionicons name="time" size={20} color="#6FAF98" style={{ marginRight: 8 }} />
+                    <Text style={styles.timeText}>
+                      {hour}:{minute} {ampm}
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity onPress={handleTimeConfirm} style={styles.saveButton}>
+                    <Text style={styles.saveButtonText}>Save Time</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
             </View>
-            {isReminderEnabled && (
-              <View>
-                <TouchableOpacity onPress={handleSetTime} style={styles.timeDisplay}>
-                  <Ionicons name="time" size={20} color="#6FAF98" style={{ marginRight: 8 }} />
-                  <Text style={styles.timeText}>
-                    {hour}:{minute} {ampm}
+
+            <View style={styles.reminderCard}>
+              <Text style={styles.cardTitle}>Build Version</Text>
+              <Text style={styles.subText}>Current Level: {visibilityLevel}</Text>
+              {NAV_VISIBILITY_LEVELS.map((versionObj) => (
+                <TouchableOpacity
+                  key={versionObj.level}
+                  style={[
+                    styles.versionButton,
+                    visibilityLevel === versionObj.level && styles.versionButtonActive,
+                  ]}
+                  onPress={() => handleVisibilityLevelChange(versionObj.level)}
+                >
+                  <Text
+                    style={[
+                      styles.versionButtonText,
+                      visibilityLevel === versionObj.level && styles.versionButtonTextActive,
+                    ]}
+                  >
+                    {versionObj.label}
                   </Text>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={handleTimeConfirm} style={styles.saveButton}>
-                  <Text style={styles.saveButtonText}>Save Time</Text>
-                </TouchableOpacity>
-              </View>
-            )}
-          </View>
+              ))}
+            </View>
+          </ScrollView>
         </View>
 
         {showSuccessMessage && (
@@ -314,7 +356,7 @@ export default function ProfileScreen({ navigation }) {
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={styles.timePickerModalOkButton}
-                  onPress={handleTimeConfirm}
+                  onPress={handleModalOk}
                 >
                   <Text style={styles.timePickerModalOkButtonText}>OK</Text>
                 </TouchableOpacity>
@@ -374,6 +416,8 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     padding: 20,
     marginHorizontal: 20,
+    marginTop: 20,
+    marginBottom: 20,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
@@ -578,5 +622,32 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 8,
+  },
+  subText: {
+    fontSize: 14,
+    color: '#6FAF98',
+    marginBottom: 12,
+    fontWeight: '600',
+  },
+  versionButton: {
+    borderWidth: 1.5,
+    borderColor: '#6FAF98',
+    borderRadius: 10,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    marginVertical: 8,
+    backgroundColor: 'transparent',
+    alignItems: 'center',
+  },
+  versionButtonActive: {
+    backgroundColor: '#6FAF98',
+  },
+  versionButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#6FAF98',
+  },
+  versionButtonTextActive: {
+    color: 'white',
   },
 });
