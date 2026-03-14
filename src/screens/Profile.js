@@ -29,6 +29,7 @@ export default function ProfileScreen({ navigation }) {
   const [minute, setMinute] = useState(String(new Date().getMinutes()).padStart(2, '0'));
   const [ampm, setAmpm] = useState(new Date().getHours() >= 12 ? 'PM' : 'AM');
   const [showTimePickerModal, setShowTimePickerModal] = useState(false);
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
 
   // Load saved settings on component mount
   useEffect(() => {
@@ -169,6 +170,12 @@ export default function ProfileScreen({ navigation }) {
     if (isReminderEnabled) {
       await scheduleNotification();
     }
+
+    // Show success message
+    setShowSuccessMessage(true);
+    setTimeout(() => {
+      setShowSuccessMessage(false);
+    }, 2500);
   };
 
   return (
@@ -216,6 +223,15 @@ export default function ProfileScreen({ navigation }) {
             )}
           </View>
         </View>
+
+        {showSuccessMessage && (
+          <View style={styles.successMessage}>
+            <View style={styles.successCheckbox}>
+              <Ionicons name="checkmark" size={20} color="white" />
+            </View>
+            <Text style={styles.successMessageText}>Reminder saved & scheduled!</Text>
+          </View>
+        )}
 
         <Navigation navigation={navigation} currentScreen="Profile" />
 
@@ -528,5 +544,39 @@ const styles = StyleSheet.create({
     color: '#6FAF98',
     fontSize: 14,
     fontWeight: '700',
+  },
+  successMessage: {
+    position: 'absolute',
+    top: '50%',
+    marginTop: 150,
+    left: 20,
+    right: 20,
+    backgroundColor: 'rgba(111, 175, 152, 0.3)',
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+    borderRadius: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 50,
+    zIndex: 1000,
+  },
+  successMessageText: {
+    color: 'black',
+    fontSize: 14,
+    fontWeight: '400',
+  },
+  successCheckbox: {
+    backgroundColor: '#2f5f4a',
+    width: 24,
+    height: 24,
+    borderRadius: 4,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 8,
   },
 });

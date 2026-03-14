@@ -1,36 +1,7 @@
 <svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
-  <!-- Background -->
-  <rect width="1024" height="1024" fill="#ffffff" rx="200"/>
+  <!-- White background -->
+  <rect width="1024" height="1024" fill="white"/>
   
-  <!-- Outer decorative circle -->
-  <circle cx="512" cy="512" r="460" fill="none" stroke="#6FAF98" stroke-width="20"/>
-  
-  <!-- Inner circle background -->
-  <circle cx="512" cy="512" r="400" fill="#f0f8f6"/>
-  
-  <!-- Left leaf -->
-  <g>
-    <ellipse cx="380" cy="450" rx="90" ry="150" fill="#6FAF98" transform="rotate(-35 380 450)"/>
-    <path d="M 380 300 Q 360 380 380 500" stroke="#2f4f4f" stroke-width="8" fill="none" stroke-linecap="round"/>
-  </g>
-  
-  <!-- Right leaf -->
-  <g>
-    <ellipse cx="644" cy="450" rx="90" ry="150" fill="#6FAF98" transform="rotate(35 644 450)"/>
-    <path d="M 644 300 Q 664 380 644 500" stroke="#2f4f4f" stroke-width="8" fill="none" stroke-linecap="round"/>
-  </g>
-  
-  <!-- Center heart shape -->
-  <g>
-    <!-- Top left of heart -->
-    <path d="M 512 650 C 420 550 350 480 350 400 C 350 330 400 280 450 280 C 480 280 510 295 512 320 C 514 295 544 280 574 280 C 624 280 674 330 674 400 C 674 480 604 550 512 650" 
-          fill="#6FAF98" stroke="#2f4f4f" stroke-width="12"/>
-  </g>
-  
-  <!-- Vein detail in center leaf -->
-  <path d="M 512 320 L 512 620" stroke="#2f4f4f" stroke-width="6" opacity="0.6"/>
-  
-  <!-- Accent dots -->
-  <circle cx="300" cy="300" r="20" fill="#6FAF98" opacity="0.4"/>
-  <circle cx="724" cy="300" r="20" fill="#6FAF98" opacity="0.4"/>
+  <!-- Letter A -->
+  <text x="512" y="750" font-size="600" font-weight="bold" font-family="Arial, sans-serif" fill="#4f7f6b" text-anchor="middle">A</text>
 </svg>
