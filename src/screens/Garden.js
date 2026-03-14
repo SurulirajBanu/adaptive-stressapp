@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   StyleSheet,
   Text,
@@ -16,32 +16,53 @@ import Navigation from '../components/Navigation';
 
 const { width, height } = Dimensions.get('window');
 
+// Constant for timeout duration (in seconds)
+const EXERCISE_TIMEOUT_SECONDS = 3600; // 1 hour
+
 const GardenScreen = ({ navigation }) => {
   const [isHealthy, setIsHealthy] = useState(true);
+  const timerRef = useRef(null);
 
+  // Check garden state and set up timer
   useFocusEffect(
     React.useCallback(() => {
-      const checkGardenState = async () => {
+      const checkAndStartTimer = async () => {
         try {
           const lastExerciseTime = await AsyncStorage.getItem('lastExerciseTime');
+
           if (lastExerciseTime) {
             const lastTime = new Date(lastExerciseTime);
             const currentTime = new Date();
-            const hoursDifference = (currentTime - lastTime) / (1000 * 60 * 60);
+            const secondsDifference = (currentTime - lastTime) / 1000;
 
-            setIsHealthy(hoursDifference <= 24);
+            setIsHealthy(secondsDifference <= EXERCISE_TIMEOUT_SECONDS);
           } else {
-            setIsHealthy(true);
+            setIsHealthy(false); // No exercise recorded, garden is unhealthy
           }
         } catch (error) {
           console.error("Failed to load garden state:", error);
-          setIsHealthy(true);
+          setIsHealthy(false);
         }
       };
 
-      checkGardenState();
+      checkAndStartTimer();
+
+      // Set up timer to check every second
+      timerRef.current = setInterval(() => {
+        checkAndStartTimer();
+      }, 1000);
+
+      return () => {
+        if (timerRef.current) {
+          clearInterval(timerRef.current);
+        }
+      };
     }, [])
   );
+
+  const handlePracticeNow = () => {
+    navigation.navigate('Home');
+  };
 
   return (
     <ImageBackground
@@ -60,7 +81,7 @@ const GardenScreen = ({ navigation }) => {
           <Text style={styles.gardenText}>
             {isHealthy
               ? "Your garden is flourishing! Keep up the great work."
-              : "Your garden needs some attention. Complete a breathing exercise to help it recover."}
+              : "Your garden needs some attention. Complete a practice to help it recover."}
           </Text>
 
           {/* Image is now scaled to 100% width and 65% of screen height */}
@@ -74,6 +95,16 @@ const GardenScreen = ({ navigation }) => {
             resizeMode="contain"
           />
         </View>
+
+        {/* Practice Now Button - Only show when unhealthy */}
+        {!isHealthy && (
+          <TouchableOpacity
+            style={styles.practiceButton}
+            onPress={handlePracticeNow}
+          >
+            <Text style={styles.practiceButtonText}>Practice Now</Text>
+          </TouchableOpacity>
+        )}
 
         {/* Bottom Navigation */}
         <Navigation navigation={navigation} currentScreen="Garden" />
@@ -107,24 +138,43 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     alignItems: 'center',
-    justifyContent: 'space-between', // Pushes text to top and image to take up remaining space
+    justifyContent: 'flex-start',
     paddingTop: 20,
   },
 
   gardenImage: {
-    width: width,             // Full screen width
-    height: height * 0.65,    // Takes up 65% of the total screen height
-    marginBottom: -20,        // Pulls it slightly closer to the bottom nav for maximum scale
+    width: width,
+    height: height * 0.5,
+    marginVertical: 12,
   },
 
   gardenText: {
     fontSize: 18,
     color: '#4f7f6b',
     textAlign: 'center',
-    paddingHorizontal: 40,    // Wider horizontal padding for that 2nd image look
+    paddingHorizontal: 40,
   },
 
+  practiceButton: {
+    backgroundColor: '#6FAF98',
+    paddingVertical: 16,
+    paddingHorizontal: 40,
+    borderRadius: 12,
+    alignItems: 'center',
+    marginBottom: 20,
+    marginHorizontal: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    elevation: 4,
+  },
 
+  practiceButtonText: {
+    color: 'white',
+    fontSize: 18,
+    fontWeight: '700',
+  },
 });
 
 export default GardenScreen;

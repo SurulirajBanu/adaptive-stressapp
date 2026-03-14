@@ -13,6 +13,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Audio } from 'expo-av';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Navigation from '../components/Navigation';
 
 // Static audio file mapping
@@ -53,6 +54,22 @@ const MeditationScreen = ({ navigation }) => {
             shouldDuckAndroid: true,
         });
     }, []);
+
+    // Record exercise interaction time for garden state
+    useEffect(() => {
+        // Only record when audio actually starts playing
+        if (isPlaying && currentMeditationId) {
+            const recordExerciseTime = async () => {
+                try {
+                    await AsyncStorage.setItem('lastExerciseTime', new Date().toISOString());
+                    console.log('Exercise time recorded from Meditation');
+                } catch (error) {
+                    console.error('Failed to record exercise time:', error);
+                }
+            };
+            recordExerciseTime();
+        }
+    }, [isPlaying, currentMeditationId]);
 
     // Create PanResponder for progress bar drag
     useEffect(() => {

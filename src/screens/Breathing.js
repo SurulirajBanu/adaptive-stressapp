@@ -10,6 +10,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Navigation from '../components/Navigation';
 
 const BreathingScreen = ({ navigation }) => {
@@ -35,6 +36,21 @@ const BreathingScreen = ({ navigation }) => {
       }),
     ])
   );
+
+  // Record exercise interaction time for garden state when user clicks Begin
+  useEffect(() => {
+    if (isAnimating) {
+      const recordExerciseTime = async () => {
+        try {
+          await AsyncStorage.setItem('lastExerciseTime', new Date().toISOString());
+          console.log('Exercise time recorded from Breathing');
+        } catch (error) {
+          console.error('Failed to record exercise time:', error);
+        }
+      };
+      recordExerciseTime();
+    }
+  }, [isAnimating]);
 
   useEffect(() => {
     let interval;
