@@ -23,14 +23,6 @@ import Navigation from '../components/Navigation';
 
 const CATEGORIES = ['Work', 'Study', 'Relationship', 'Financial', 'Health', 'Family', 'Other'];
 
-Notifications.setNotificationHandler({
-    handleNotification: async () => ({
-        shouldShowAlert: true,
-        shouldPlaySound: true,
-        shouldSetBadge: false,
-    }),
-});
-
 export default function StressForm({ navigation, route }) {
     const isEditing = route?.params?.item ? true : false;
     const existingItem = route?.params?.item;
@@ -53,16 +45,6 @@ export default function StressForm({ navigation, route }) {
     const [pickerDate, setPickerDate] = useState(new Date(parseInt(year), parseInt(month) - 1, parseInt(day)));
     const [showTimePickerModal, setShowTimePickerModal] = useState(false);
 
-    useEffect(() => {
-        if (Platform.OS === 'android') {
-            Notifications.setNotificationChannelAsync('reminders', {
-                name: 'Reminders',
-                importance: Notifications.AndroidImportance.HIGH,
-                sound: true,
-            });
-        }
-    }, []);
-
     const scheduleReminder = async () => {
         const { status } = await Notifications.requestPermissionsAsync();
         if (status !== 'granted') {
@@ -84,30 +66,47 @@ export default function StressForm({ navigation, route }) {
             parseInt(month) - 1,
             parseInt(day),
             hour24,
-            parseInt(minute)
+            parseInt(minute),
+            0, // seconds
+            0  // milliseconds
         );
 
         const now = new Date();
+        console.log('Current time:', now);
+        console.log('Scheduled time:', reminderDateTime);
+        console.log('Time difference (ms):', reminderDateTime.getTime() - now.getTime());
+
         if (reminderDateTime <= now) {
             Alert.alert('Invalid time', 'Please select a future date and time');
             return false;
         }
 
+        // Calculate seconds from now until the reminder time
+        const secondsUntilReminder = Math.floor((reminderDateTime.getTime() - now.getTime()) / 1000);
+        console.log('Scheduling notification for', secondsUntilReminder, 'seconds from now');
+        console.log('Will fire at:', reminderDateTime.toLocaleString());
+
         try {
-            await Notifications.scheduleNotificationAsync({
+            const identifier = await Notifications.scheduleNotificationAsync({
                 content: {
                     title: 'Time to work on your solution! 💡',
                     body: `Solution: ${solution}`,
                     sound: true,
+                    priority: Notifications.AndroidNotificationPriority.MAX,
+                    ...(Platform.OS === 'android' && {
+                        channelId: 'reminders',
+                    }),
                 },
                 trigger: {
-                    type: 'date',
-                    date: reminderDateTime,
+                    type: 'timeInterval',
+                    seconds: secondsUntilReminder,
                 },
             });
+            console.log('Notification scheduled with ID:', identifier);
             return true;
         } catch (error) {
             console.log('Error scheduling reminder:', error);
+            Alert.alert('Error', 'Failed to schedule notification: ' + error.message);
             return false;
         }
     };
@@ -142,6 +141,14 @@ export default function StressForm({ navigation, route }) {
                 if (!scheduled) return;
             }
 
+            // Convert 12-hour format to 24-hour format for saving
+            let hour24 = parseInt(hour);
+            if (ampm === 'PM' && hour24 !== 12) {
+                hour24 += 12;
+            } else if (ampm === 'AM' && hour24 === 12) {
+                hour24 = 0;
+            }
+
             // Create or update stress item
             const stressItem = isEditing
                 ? {
@@ -149,7 +156,7 @@ export default function StressForm({ navigation, route }) {
                     description,
                     category: selectedCategory,
                     solution,
-                    reminderTime: reminderEnabled ? new Date(parseInt(year), parseInt(month) - 1, parseInt(day), parseInt(hour), parseInt(minute)).toISOString() : null,
+                    reminderTime: reminderEnabled ? new Date(parseInt(year), parseInt(month) - 1, parseInt(day), hour24, parseInt(minute)).toISOString() : null,
                 }
                 : {
                     id: Date.now().toString(),
@@ -158,7 +165,7 @@ export default function StressForm({ navigation, route }) {
                     solution,
                     solved: false,
                     createdAt: new Date().toISOString(),
-                    reminderTime: reminderEnabled ? new Date(parseInt(year), parseInt(month) - 1, parseInt(day), parseInt(hour), parseInt(minute)).toISOString() : null,
+                    reminderTime: reminderEnabled ? new Date(parseInt(year), parseInt(month) - 1, parseInt(day), hour24, parseInt(minute)).toISOString() : null,
                 };
 
             // Save to AsyncStorage
