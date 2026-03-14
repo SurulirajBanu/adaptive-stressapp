@@ -83,25 +83,6 @@ export default function Navigation({ navigation, currentScreen }) {
 
             <TouchableOpacity
                 style={styles.navItem}
-                onPress={() => navigation.navigate('StressTracker')}
-            >
-                <MaterialCommunityIcons
-                    name="alert-circle-outline"
-                    size={30}
-                    color={currentScreen === 'Stress' ? '#6FAF98' : '#4f7f6b'}
-                />
-                <Text
-                    style={[
-                        styles.navText,
-                        { color: currentScreen === 'Stress' ? '#6FAF98' : '#4f7f6b' },
-                    ]}
-                >
-                    Stress
-                </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-                style={styles.navItem}
                 onPress={() => navigation.navigate('Profile')}
             >
                 <Ionicons

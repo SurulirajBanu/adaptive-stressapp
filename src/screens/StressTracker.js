@@ -113,7 +113,11 @@ export default function StressTracker({ navigation }) {
                 <StatusBar barStyle="dark-content" />
 
                 <View style={styles.header}>
+                    <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+                        <Ionicons name="chevron-back" size={28} color="#333" />
+                    </TouchableOpacity>
                     <Text style={styles.headerTitle}>Your Sources of Stress</Text>
+                    <View style={styles.headerSpacer} />
                 </View>
 
                 {stressItems.length === 0 ? (
@@ -142,7 +146,7 @@ export default function StressTracker({ navigation }) {
                     <Text style={styles.addButtonText}>Add Stress Source</Text>
                 </TouchableOpacity>
 
-                <Navigation navigation={navigation} currentScreen="Stress" />
+                <Navigation navigation={navigation} currentScreen="" />
             </SafeAreaView>
         </ImageBackground>
     );
@@ -157,16 +161,28 @@ const styles = StyleSheet.create({
         backgroundColor: 'transparent',
     },
     header: {
-        paddingHorizontal: 20,
-        paddingVertical: 16,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingHorizontal: 16,
+        paddingTop: 40,
+        paddingBottom: 12,
+        backgroundColor: 'rgba(255, 255, 255, 0.9)',
         borderBottomWidth: 1,
-        borderBottomColor: 'rgba(0,0,0,0.05)',
+        borderBottomColor: '#e0e0e0',
+    },
+    backButton: {
+        padding: 8,
     },
     headerTitle: {
         fontSize: 24,
-        fontWeight: 'bold',
-        color: '#2f4f4f',
+        fontWeight: '700',
+        color: '#333',
+        flex: 1,
         textAlign: 'center',
+    },
+    headerSpacer: {
+        width: 44,
     },
     emptyState: {
         flex: 1,

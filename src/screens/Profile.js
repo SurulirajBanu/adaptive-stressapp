@@ -132,11 +132,11 @@ export default function ProfileScreen({ navigation }) {
       style={styles.background}
       resizeMode="cover"
     >
-      <SafeAreaView style={styles.container} edges={['top', 'right', 'left']}>
+      <SafeAreaView style={styles.container} edges={['right', 'left', 'bottom']}>
         <StatusBar barStyle="dark-content" />
 
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>Settings</Text>
+          <Text style={styles.headerTitle}>Profile</Text>
         </View>
 
         <View style={styles.content}>
@@ -277,13 +277,18 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 15,
-    height: 60,
+    paddingHorizontal: 16,
+    paddingTop: 40,
+    paddingBottom: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    borderBottomWidth: 1,
+    borderBottomColor: '#e0e0e0',
   },
   headerTitle: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: '#2f4f4f',
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#333',
+    textAlign: 'center',
   },
   reminderCard: {
     backgroundColor: 'rgba(255, 255, 255, 0.9)',

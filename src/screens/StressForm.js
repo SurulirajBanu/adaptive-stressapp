@@ -196,13 +196,9 @@ export default function StressForm({ navigation, route }) {
                 >
                     <ScrollView contentContainerStyle={styles.content}>
                         <View style={styles.header}>
-                            <TouchableOpacity onPress={() => navigation.goBack()}>
-                                <Ionicons name="chevron-back" size={32} color="#4f7f6b" />
-                            </TouchableOpacity>
                             <Text style={styles.headerTitle}>
                                 {isEditing ? 'Edit Stress' : 'Add Stress Source'}
                             </Text>
-                            <View style={{ width: 32 }} />
                         </View>
 
                         {/* Identify Your Stress Section */}
@@ -323,7 +319,7 @@ export default function StressForm({ navigation, route }) {
                     </TouchableOpacity>
                 </KeyboardAvoidingView>
 
-                <Navigation navigation={navigation} currentScreen="Stress" />
+                <Navigation navigation={navigation} currentScreen="" />
 
                 {showDatePicker && (
                     <DateTimePicker
@@ -443,14 +439,21 @@ const styles = StyleSheet.create({
     },
     header: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
         alignItems: 'center',
+        justifyContent: 'center',
+        paddingHorizontal: 16,
+        paddingTop: 40,
+        paddingBottom: 12,
+        backgroundColor: 'rgba(255, 255, 255, 0.9)',
+        borderBottomWidth: 1,
+        borderBottomColor: '#e0e0e0',
         marginBottom: 24,
     },
     headerTitle: {
-        fontSize: 22,
-        fontWeight: 'bold',
-        color: '#2f4f4f',
+        fontSize: 24,
+        fontWeight: '700',
+        color: '#333',
+        textAlign: 'center',
     },
     section: {
         marginBottom: 24,

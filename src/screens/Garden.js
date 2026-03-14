@@ -87,14 +87,21 @@ const styles = StyleSheet.create({
   container: { flex: 1 },
 
   header: {
-    height: 60,
-    justifyContent: 'center',
+    flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 16,
+    paddingTop: 40,
+    paddingBottom: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    borderBottomWidth: 1,
+    borderBottomColor: '#e0e0e0',
   },
   headerTitle: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: '#2f4f4f',
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#333',
+    textAlign: 'center',
   },
 
   content: {

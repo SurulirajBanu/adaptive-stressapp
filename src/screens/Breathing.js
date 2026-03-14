@@ -76,9 +76,10 @@ const BreathingScreen = ({ navigation }) => {
       <SafeAreaView style={styles.container} edges={['right', 'left', 'bottom']}>
         <View style={styles.header}>
           <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-            <Ionicons name="chevron-back" size={28} color="#2f4f4f" />
+            <Ionicons name="chevron-back" size={28} color="#333" />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Breathing Exercises</Text>
+          <View style={styles.headerSpacer} />
         </View>
 
         <View style={styles.content}>
@@ -130,19 +131,26 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 15,
-    height: 60,
-    position: 'relative',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingTop: 40,
+    paddingBottom: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    borderBottomWidth: 1,
+    borderBottomColor: '#e0e0e0',
   },
   backButton: {
-    position: 'absolute',
-    left: 15,
+    padding: 8,
   },
   headerTitle: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: '#2f4f4f',
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#333',
+    flex: 1,
+    textAlign: 'center',
+  },
+  headerSpacer: {
+    width: 44,
   },
   content: {
     flex: 1,

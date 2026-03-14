@@ -6,10 +6,10 @@ import {
     TouchableOpacity,
     ScrollView,
     ImageBackground,
-    SafeAreaView,
     StatusBar,
     PanResponder,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Audio } from 'expo-av';
@@ -292,7 +292,7 @@ const MeditationScreen = ({ navigation }) => {
             style={styles.background}
             resizeMode="cover"
         >
-            <SafeAreaView style={styles.container} edges={['right', 'left']}>
+            <SafeAreaView style={styles.container} edges={['right', 'left', 'bottom']}>
                 <StatusBar barStyle="dark-content" />
 
                 {/* Header */}
@@ -438,7 +438,8 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'space-between',
         paddingHorizontal: 16,
-        paddingVertical: 12,
+        paddingTop: 40,
+        paddingBottom: 12,
         backgroundColor: 'rgba(255, 255, 255, 0.9)',
         borderBottomWidth: 1,
         borderBottomColor: '#e0e0e0',
@@ -447,8 +448,8 @@ const styles = StyleSheet.create({
         padding: 8,
     },
     headerTitle: {
-        fontSize: 20,
-        fontWeight: '600',
+        fontSize: 24,
+        fontWeight: '700',
         color: '#333',
         flex: 1,
         textAlign: 'center',

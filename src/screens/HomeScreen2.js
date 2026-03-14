@@ -47,9 +47,15 @@ export default function HomeScreen({ navigation }) {
       <SafeAreaView style={styles.container} edges={['right', 'left', 'bottom']}>
         <StatusBar barStyle="dark-content" />
 
+        {/* Header */}
+        <View style={styles.header}>
+          <View style={styles.headerSpacer} />
+          <Text style={styles.headerTitle}>Practice</Text>
+          <View style={styles.headerSpacer} />
+        </View>
+
         <View style={styles.content}>
           <View>
-            <Text style={styles.title}>Practice</Text>
             <Text style={styles.subtitle}>
               Welcome {userName}, Calm your mind and body through guided exercises
             </Text>
@@ -112,17 +118,31 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: 'transparent',
   },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingTop: 40,
+    paddingBottom: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    borderBottomWidth: 1,
+    borderBottomColor: '#e0e0e0',
+  },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#333',
+    flex: 1,
+    textAlign: 'center',
+  },
+  headerSpacer: {
+    width: 44,
+  },
   content: {
     flex: 1,
     justifyContent: 'center',
     paddingHorizontal: 20,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#2f4f4f',
-    textAlign: 'center',
-    marginBottom: 10,
   },
   subtitle: {
     fontSize: 18,
