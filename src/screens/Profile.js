@@ -19,15 +19,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Notifications from 'expo-notifications';
 import Navigation from '../components/Navigation';
 
-// Configure notification handler
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
-    shouldSetBadge: false,
-  }),
-});
-
 export default function ProfileScreen({ navigation }) {
   const [isReminderEnabled, setIsReminderEnabled] = useState(false);
   const [hour, setHour] = useState(() => {
@@ -46,13 +37,22 @@ export default function ProfileScreen({ navigation }) {
         const savedTime = await AsyncStorage.getItem('reminderTime');
         const savedEnabled = await AsyncStorage.getItem('reminderEnabled');
 
+        console.log('Loaded reminderTime from storage:', savedTime);
+        console.log('Loaded reminderEnabled from storage:', savedEnabled);
+
         if (savedTime) {
           const savedDate = new Date(savedTime);
           const h = savedDate.getHours();
           const displayH = h % 12 || 12;
-          setHour(String(displayH).padStart(2, '0'));
-          setMinute(String(savedDate.getMinutes()).padStart(2, '0'));
-          setAmpm(h >= 12 ? 'PM' : 'AM');
+          const newHour = String(displayH).padStart(2, '0');
+          const newMinute = String(savedDate.getMinutes()).padStart(2, '0');
+          const newAmpm = h >= 12 ? 'PM' : 'AM';
+
+          console.log('Setting hour to:', newHour, 'minute to:', newMinute, 'ampm to:', newAmpm);
+
+          setHour(newHour);
+          setMinute(newMinute);
+          setAmpm(newAmpm);
         }
 
         if (savedEnabled) {
@@ -70,11 +70,22 @@ export default function ProfileScreen({ navigation }) {
   };
 
   const scheduleNotification = async () => {
-    const { status } = await Notifications.requestPermissionsAsync();
+    const { status } = await Notifications.requestPermissionsAsync({
+      ios: {
+        allowAlert: true,
+        allowBadge: true,
+        allowSound: true,
+        allowAnnouncements: true,
+      },
+      android: {},
+    });
+
     if (status !== 'granted') {
       Alert.alert('Permission required', 'Please enable notifications to receive reminders.');
       return;
     }
+
+    await Notifications.cancelAllScheduledNotificationsAsync(); // Clear old reminders
 
     // Convert 12-hour format to 24-hour format
     let hour24 = parseInt(hour);
@@ -84,24 +95,45 @@ export default function ProfileScreen({ navigation }) {
       hour24 = 0;
     }
 
-    await Notifications.cancelAllScheduledNotificationsAsync(); // Clear old reminders
-
-    await Notifications.scheduleNotificationAsync({
-      content: {
-        title: "Time for your practice! 🧘",
-        body: 'A few moments of calm can make a big difference.',
-      },
-      trigger: {
-        hour: hour24,
-        minute: parseInt(minute),
-        repeats: true, // Daily reminder
-      },
-    });
-
-    // Save the time
+    // Calculate seconds until the next reminder time
     const now = new Date();
-    now.setHours(hour24, parseInt(minute), 0, 0);
-    await AsyncStorage.setItem('reminderTime', now.toISOString());
+    const reminderTime = new Date();
+    reminderTime.setHours(hour24, parseInt(minute), 0, 0);
+
+    // If the time has already passed today, schedule for tomorrow
+    if (reminderTime <= now) {
+      reminderTime.setDate(reminderTime.getDate() + 1);
+    }
+
+    const secondsUntilReminder = Math.floor((reminderTime.getTime() - now.getTime()) / 1000);
+    console.log('Scheduling daily reminder for', secondsUntilReminder, 'seconds from now');
+    console.log('Will fire at:', reminderTime.toLocaleString());
+
+    try {
+      await Notifications.scheduleNotificationAsync({
+        content: {
+          title: "Time for your practice! 🧘",
+          body: 'A few moments of calm can make a big difference.',
+          sound: true,
+          priority: Notifications.AndroidNotificationPriority.MAX,
+          ...(Platform.OS === 'android' && {
+            channelId: 'reminders',
+          }),
+        },
+        trigger: {
+          type: 'timeInterval',
+          seconds: secondsUntilReminder,
+        },
+      });
+
+      console.log('Daily reminder scheduled successfully');
+
+      // Save the time
+      await AsyncStorage.setItem('reminderTime', reminderTime.toISOString());
+    } catch (error) {
+      console.log('Error scheduling reminder:', error);
+      Alert.alert('Error', 'Failed to schedule notification: ' + error.message);
+    }
   };
 
   const handleReminderToggle = async (value) => {
@@ -121,6 +153,19 @@ export default function ProfileScreen({ navigation }) {
 
   const handleTimeConfirm = async () => {
     setShowTimePickerModal(false);
+
+    // Save the selected time
+    let hour24 = parseInt(hour);
+    if (ampm === 'PM' && hour24 !== 12) {
+      hour24 += 12;
+    } else if (ampm === 'AM' && hour24 === 12) {
+      hour24 = 0;
+    }
+    const savedTime = new Date();
+    savedTime.setHours(hour24, parseInt(minute), 0, 0);
+    await AsyncStorage.setItem('reminderTime', savedTime.toISOString());
+
+    // Reschedule if reminder is enabled
     if (isReminderEnabled) {
       await scheduleNotification();
     }
@@ -137,6 +182,10 @@ export default function ProfileScreen({ navigation }) {
 
         <View style={styles.header}>
           <Text style={styles.headerTitle}>Profile</Text>
+          <TouchableOpacity onPress={handleLogout} style={styles.logoutIconButton}>
+            <MaterialCommunityIcons name="power" size={32} color="#2f4f4f" strokeWidth={2} />
+            <Text style={styles.logoutIconText}>Logout</Text>
+          </TouchableOpacity>
         </View>
 
         <View style={styles.content}>
@@ -153,18 +202,19 @@ export default function ProfileScreen({ navigation }) {
               />
             </View>
             {isReminderEnabled && (
-              <TouchableOpacity onPress={handleSetTime} style={styles.timeDisplay}>
-                <Ionicons name="time" size={20} color="#6FAF98" style={{ marginRight: 8 }} />
-                <Text style={styles.timeText}>
-                  {hour}:{minute} {ampm}
-                </Text>
-              </TouchableOpacity>
+              <View>
+                <TouchableOpacity onPress={handleSetTime} style={styles.timeDisplay}>
+                  <Ionicons name="time" size={20} color="#6FAF98" style={{ marginRight: 8 }} />
+                  <Text style={styles.timeText}>
+                    {hour}:{minute} {ampm}
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={handleTimeConfirm} style={styles.saveButton}>
+                  <Text style={styles.saveButtonText}>Save Time</Text>
+                </TouchableOpacity>
+              </View>
             )}
           </View>
-
-          <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
-            <Text style={styles.logoutButtonText}>Log Out</Text>
-          </TouchableOpacity>
         </View>
 
         <Navigation navigation={navigation} currentScreen="Profile" />
@@ -276,7 +326,7 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingTop: 40,
     paddingBottom: 12,
@@ -289,6 +339,19 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#333',
     textAlign: 'center',
+    flex: 1,
+  },
+  logoutIconButton: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginLeft: 8,
+    padding: 12,
+  },
+  logoutIconText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#2f4f4f',
+    marginTop: 6,
   },
   reminderCard: {
     backgroundColor: 'rgba(255, 255, 255, 0.9)',
@@ -334,23 +397,24 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#2f4f4f',
   },
-  logoutButton: {
+  saveButton: {
     backgroundColor: '#6FAF98',
-    borderRadius: 25,
-    paddingVertical: 15,
+    borderRadius: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    marginTop: 16,
     alignItems: 'center',
-    marginHorizontal: 40,
-    marginTop: 40,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 5,
+  },
+  saveButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '700',
+  },
+  logoutButton: {
+    display: 'none',
   },
   logoutButtonText: {
-    color: 'white',
-    fontSize: 18,
-    fontWeight: '700',
+    display: 'none',
   },
   modalOverlay: {
     flex: 1,
