@@ -13,6 +13,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Audio } from 'expo-av';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Navigation from '../components/Navigation';
 
 // Static audio file mapping
@@ -44,6 +45,16 @@ const MeditationScreen = ({ navigation }) => {
     const panResponderRef = React.useRef(null);
     const progressViewRef = React.useRef(null);
 
+    // Configure audio mode on mount
+    useEffect(() => {
+        Audio.setAudioModeAsync({
+            allowsRecordingIOS: false,
+            playsInSilentModeIOS: true,
+            staysActiveInBackground: true,
+            shouldDuckAndroid: true,
+        });
+    }, []);
+
     // Create PanResponder for progress bar drag
     useEffect(() => {
         panResponderRef.current = PanResponder.create({
@@ -53,14 +64,17 @@ const MeditationScreen = ({ navigation }) => {
                 setIsSeeking(true);
             },
             onPanResponderMove: (evt, gestureState) => {
-                if (!sound || duration === 0 || !progressBarWidth) return;
+                if (!sound || duration === 0 || !progressBarWidth || !progressViewRef.current) return;
 
-                const touchX = gestureState.x0;
-                const newPosition = Math.max(0, Math.min(touchX / progressBarWidth * duration, duration));
+                // Get the touch position relative to the progress bar
+                progressViewRef.current.measure((x, y, width, height, pageX, pageY) => {
+                    const touchX = Math.max(0, Math.min(evt.nativeEvent.pageX - pageX, width));
+                    const newPosition = (touchX / width) * duration;
 
-                setCurrentPosition(newPosition);
-                sound.setPositionAsync(newPosition).catch(error => {
-                    console.error('Error seeking audio:', error);
+                    setCurrentPosition(newPosition);
+                    sound.setPositionAsync(newPosition).catch(error => {
+                        console.error('Error seeking audio:', error);
+                    });
                 });
             },
             onPanResponderRelease: () => {
@@ -192,7 +206,22 @@ const MeditationScreen = ({ navigation }) => {
     const handleMeditationPress = async (meditation) => {
         if (!meditation.isLocked) {
             try {
-                // Stop current audio if playing
+                // If clicking same meditation that's loaded, toggle pause/play
+                if (sound && currentMeditationId === meditation.id) {
+                    const status = await sound.getStatusAsync();
+                    if (status.isLoaded) {
+                        if (isPlaying) {
+                            await sound.pauseAsync();
+                            setIsPlaying(false);
+                        } else {
+                            await sound.playAsync();
+                            setIsPlaying(true);
+                        }
+                        return;
+                    }
+                }
+
+                // Stop current audio if playing different one
                 if (sound) {
                     await sound.unloadAsync();
                 }
@@ -206,10 +235,10 @@ const MeditationScreen = ({ navigation }) => {
 
                 const { sound: newSound } = await Audio.Sound.createAsync(audioSource);
                 setSound(newSound);
-                setIsPlaying(true);
                 setCurrentMeditationId(meditation.id);
                 setCurrentPosition(0);
                 await newSound.playAsync();
+                setIsPlaying(true);
 
                 // Handle playback status updates (for progress tracking)
                 newSound.setOnPlaybackStatusUpdate((status) => {
@@ -365,19 +394,19 @@ const MeditationScreen = ({ navigation }) => {
                                             {isLocked ? (
                                                 <MaterialCommunityIcons
                                                     name="lock"
-                                                    size={24}
+                                                    size={40}
                                                     color="#999"
                                                 />
                                             ) : isPlaying && currentMeditationId === meditation.id ? (
                                                 <MaterialCommunityIcons
                                                     name="pause-circle"
-                                                    size={24}
+                                                    size={40}
                                                     color="#4caf50"
                                                 />
                                             ) : (
                                                 <MaterialCommunityIcons
                                                     name="play-circle"
-                                                    size={24}
+                                                    size={40}
                                                     color="#4caf50"
                                                 />
                                             )}
@@ -387,23 +416,34 @@ const MeditationScreen = ({ navigation }) => {
                                     {/* Progress Bar */}
                                     {isPlaying && currentMeditationId === meditation.id && duration > 0 && (
                                         <View style={styles.progressContainer}>
-                                            <TouchableOpacity
+                                            <View
                                                 ref={progressViewRef}
-                                                activeOpacity={1}
-                                                onPress={handleProgressBarPress}
                                                 {...(panResponderRef.current ? panResponderRef.current.panHandlers : {})}
                                                 onLayout={(event) => {
                                                     setProgressBarWidth(event.nativeEvent.layout.width);
                                                 }}
-                                                style={styles.progressBar}
+                                                style={styles.progressBarContainer}
                                             >
+                                                <TouchableOpacity
+                                                    activeOpacity={1}
+                                                    onPress={handleProgressBarPress}
+                                                    style={styles.progressBar}
+                                                >
+                                                    <View
+                                                        style={[
+                                                            styles.progressFill,
+                                                            { width: `${(currentPosition / duration) * 100}%` },
+                                                        ]}
+                                                    />
+                                                </TouchableOpacity>
+                                                {/* Draggable Thumb */}
                                                 <View
                                                     style={[
-                                                        styles.progressFill,
-                                                        { width: `${(currentPosition / duration) * 100}%` },
+                                                        styles.progressThumb,
+                                                        { left: `${(currentPosition / duration) * 100}%` },
                                                     ]}
                                                 />
-                                            </TouchableOpacity>
+                                            </View>
                                             <View style={styles.timeContainer}>
                                                 <Text style={styles.timeText}>
                                                     {formatTime(currentPosition)}
@@ -517,17 +557,37 @@ const styles = StyleSheet.create({
         borderTopWidth: 1,
         borderTopColor: 'rgba(76, 175, 80, 0.2)',
     },
+    progressBarContainer: {
+        position: 'relative',
+        marginBottom: 8,
+        paddingVertical: 8,
+    },
     progressBar: {
         height: 6,
         backgroundColor: 'rgba(76, 175, 80, 0.2)',
         borderRadius: 3,
         overflow: 'hidden',
-        marginBottom: 8,
     },
     progressFill: {
         height: '100%',
         backgroundColor: '#4caf50',
         borderRadius: 2,
+    },
+    progressThumb: {
+        position: 'absolute',
+        top: -2,
+        width: 28,
+        height: 28,
+        borderRadius: 14,
+        backgroundColor: '#4caf50',
+        marginLeft: -14,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.3,
+        shadowRadius: 3,
+        elevation: 4,
+        borderWidth: 2,
+        borderColor: '#ffffff',
     },
     timeContainer: {
         flexDirection: 'row',
