@@ -34,7 +34,8 @@ const audioFiles = {
 };
 
 const MeditationScreen = ({ navigation }) => {
-    const [completedMeditationIds, setCompletedMeditationIds] = useState([]);
+    // Initialize with all meditations locked except the first one
+    const [lockedMeditationIds, setLockedMeditationIds] = useState([2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]);
     const [sound, setSound] = useState(null);
     const [isPlaying, setIsPlaying] = useState(false);
     const [currentMeditationId, setCurrentMeditationId] = useState(null);
@@ -44,6 +45,46 @@ const MeditationScreen = ({ navigation }) => {
     const [isSeeking, setIsSeeking] = useState(false);
     const panResponderRef = React.useRef(null);
     const progressViewRef = React.useRef(null);
+
+    // Load locked meditations from AsyncStorage on mount
+    useEffect(() => {
+        const loadLockedMeditations = async () => {
+            try {
+                const saved = await AsyncStorage.getItem('lockedMeditationIds');
+                const defaultLocked = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13];
+
+                if (saved) {
+                    const parsedSaved = JSON.parse(saved);
+                    // If saved is empty or invalid, use defaults
+                    if (parsedSaved.length === 0) {
+                        setLockedMeditationIds(defaultLocked);
+                        await AsyncStorage.setItem('lockedMeditationIds', JSON.stringify(defaultLocked));
+                    } else {
+                        setLockedMeditationIds(parsedSaved);
+                    }
+                } else {
+                    // First time: set default and save
+                    setLockedMeditationIds(defaultLocked);
+                    await AsyncStorage.setItem('lockedMeditationIds', JSON.stringify(defaultLocked));
+                }
+            } catch (error) {
+                console.error('Error loading locked meditations:', error);
+            }
+        };
+        loadLockedMeditations();
+    }, []);
+
+    // Save locked meditations to AsyncStorage whenever they change
+    useEffect(() => {
+        const saveLockedMeditations = async () => {
+            try {
+                await AsyncStorage.setItem('lockedMeditationIds', JSON.stringify(lockedMeditationIds));
+            } catch (error) {
+                console.error('Error saving locked meditations:', error);
+            }
+        };
+        saveLockedMeditations();
+    }, [lockedMeditationIds]);
 
     // Configure audio mode on mount
     useEffect(() => {
@@ -263,12 +304,10 @@ const MeditationScreen = ({ navigation }) => {
                         setDuration(status.durationMillis);
                         if (status.didJustFinish) {
                             setIsPlaying(false);
-                            // Mark meditation as completed
-                            setCompletedMeditationIds(prev => {
-                                if (!prev.includes(meditation.id)) {
-                                    return [...prev, meditation.id];
-                                }
-                                return prev;
+                            // Unlock next meditation
+                            setLockedMeditationIds(prev => {
+                                const updated = prev.filter(id => id !== meditation.id + 1);
+                                return updated;
                             });
                         }
                     }
@@ -359,7 +398,7 @@ const MeditationScreen = ({ navigation }) => {
                 >
                     {meditations.map((meditation) => {
                         // Determine if meditation is locked
-                        const isLocked = meditation.id > 1 && !completedMeditationIds.includes(meditation.id - 1);
+                        const isLocked = lockedMeditationIds.includes(meditation.id);
 
                         return (
                             <TouchableOpacity
@@ -402,7 +441,7 @@ const MeditationScreen = ({ navigation }) => {
                                                     isLocked && styles.lockedDescription,
                                                 ]}
                                             >
-                                                {isLocked ? 'Locked - Complete previous session' : meditation.subdescription}
+                                                {isLocked ? 'Locked' : meditation.subdescription}
                                             </Text>
                                         </View>
 

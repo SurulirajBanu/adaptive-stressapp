@@ -58,6 +58,11 @@
       "color": "#6FAF98",
       "androidMode": "default",
       "androidCollapsedTitle": "#{unread_notifications} new stress reminders"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "809f5a7b-19fc-4295-8c05-d88df2b2f404"
+      }
     }
   }
 }

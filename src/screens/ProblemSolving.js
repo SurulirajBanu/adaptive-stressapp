@@ -13,6 +13,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Audio } from 'expo-av';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Navigation from '../components/Navigation';
 
 // Static audio file mapping
@@ -32,7 +33,8 @@ const audioFiles = {
 };
 
 const ProblemSolvingScreen = ({ navigation }) => {
-    const [completedLessonIds, setCompletedLessonIds] = useState([]);
+    // Initialize with all lessons locked except the first one
+    const [lockedLessonIds, setLockedLessonIds] = useState([2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]);
     const [sound, setSound] = useState(null);
     const [isPlaying, setIsPlaying] = useState(false);
     const [currentLessonId, setCurrentLessonId] = useState(null);
@@ -42,6 +44,62 @@ const ProblemSolvingScreen = ({ navigation }) => {
     const [isSeeking, setIsSeeking] = useState(false);
     const panResponderRef = React.useRef(null);
     const progressViewRef = React.useRef(null);
+
+    // Load locked lessons from AsyncStorage on mount
+    useEffect(() => {
+        const loadLockedLessons = async () => {
+            try {
+                const saved = await AsyncStorage.getItem('lockedLessonIds');
+                const defaultLocked = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+
+                if (saved) {
+                    const parsedSaved = JSON.parse(saved);
+                    // If saved is empty or invalid, use defaults
+                    if (parsedSaved.length === 0) {
+                        setLockedLessonIds(defaultLocked);
+                        await AsyncStorage.setItem('lockedLessonIds', JSON.stringify(defaultLocked));
+                    } else {
+                        setLockedLessonIds(parsedSaved);
+                    }
+                } else {
+                    // First time: set default and save
+                    setLockedLessonIds(defaultLocked);
+                    await AsyncStorage.setItem('lockedLessonIds', JSON.stringify(defaultLocked));
+                }
+            } catch (error) {
+                console.error('Error loading locked lessons:', error);
+            }
+        };
+        loadLockedLessons();
+    }, []);
+
+    // Save locked lessons to AsyncStorage whenever they change
+    useEffect(() => {
+        const saveLeckedLessons = async () => {
+            try {
+                await AsyncStorage.setItem('lockedLessonIds', JSON.stringify(lockedLessonIds));
+            } catch (error) {
+                console.error('Error saving locked lessons:', error);
+            }
+        };
+        saveLeckedLessons();
+    }, [lockedLessonIds]);
+
+    // Record exercise interaction time for garden state
+    useEffect(() => {
+        // Only record when audio actually starts playing
+        if (isPlaying && currentLessonId) {
+            const recordExerciseTime = async () => {
+                try {
+                    await AsyncStorage.setItem('lastExerciseTime', new Date().toISOString());
+                    console.log('Exercise time recorded from Problem Solving');
+                } catch (error) {
+                    console.error('Failed to record exercise time:', error);
+                }
+            };
+            recordExerciseTime();
+        }
+    }, [isPlaying, currentLessonId]);
 
     // Configure audio mode on mount
     useEffect(() => {
@@ -193,65 +251,61 @@ const ProblemSolvingScreen = ({ navigation }) => {
     ];
 
     const handleLessonPress = async (lesson) => {
-        const isLocked = lesson.id > 1 && !completedLessonIds.includes(lesson.id - 1);
-
-        if (!isLocked) {
-            try {
-                // If clicking same lesson that's loaded, toggle pause/play
-                if (sound && currentLessonId === lesson.id) {
-                    const status = await sound.getStatusAsync();
-                    if (status.isLoaded) {
-                        if (isPlaying) {
-                            await sound.pauseAsync();
-                            setIsPlaying(false);
-                        } else {
-                            await sound.playAsync();
-                            setIsPlaying(true);
-                        }
-                        return;
+        const isLocked = lockedLessonIds.includes(lesson.id);
+        if (isLocked) return;
+        try {
+            // If clicking same lesson that's loaded, toggle pause/play
+            if (sound && currentLessonId === lesson.id) {
+                const status = await sound.getStatusAsync();
+                if (status.isLoaded) {
+                    if (isPlaying) {
+                        await sound.pauseAsync();
+                        setIsPlaying(false);
+                    } else {
+                        await sound.playAsync();
+                        setIsPlaying(true);
                     }
-                }
-
-                // Stop current audio if playing different one
-                if (sound) {
-                    await sound.unloadAsync();
-                }
-
-                // Load and play the audio file using static mapping
-                const audioSource = audioFiles[lesson.audioFile];
-                if (!audioSource) {
-                    alert('Audio file not found: ' + lesson.audioFile);
                     return;
                 }
-
-                const { sound: newSound } = await Audio.Sound.createAsync(audioSource);
-                setSound(newSound);
-                setCurrentLessonId(lesson.id);
-                setCurrentPosition(0);
-                await newSound.playAsync();
-                setIsPlaying(true);
-
-                // Handle playback status updates (for progress tracking)
-                newSound.setOnPlaybackStatusUpdate((status) => {
-                    if (status.isLoaded) {
-                        setCurrentPosition(status.positionMillis);
-                        setDuration(status.durationMillis);
-                        if (status.didJustFinish) {
-                            setIsPlaying(false);
-                            // Mark lesson as completed
-                            setCompletedLessonIds(prev => {
-                                if (!prev.includes(lesson.id)) {
-                                    return [...prev, lesson.id];
-                                }
-                                return prev;
-                            });
-                        }
-                    }
-                });
-            } catch (error) {
-                console.error('Error playing audio:', error);
-                alert('Error playing audio. Make sure the file exists in assets folder.');
             }
+
+            // Stop current audio if playing different one
+            if (sound) {
+                await sound.unloadAsync();
+            }
+
+            // Load and play the audio file using static mapping
+            const audioSource = audioFiles[lesson.audioFile];
+            if (!audioSource) {
+                alert('Audio file not found: ' + lesson.audioFile);
+                return;
+            }
+
+            const { sound: newSound } = await Audio.Sound.createAsync(audioSource);
+            setSound(newSound);
+            setCurrentLessonId(lesson.id);
+            setCurrentPosition(0);
+            await newSound.playAsync();
+            setIsPlaying(true);
+
+            // Handle playback status updates (for progress tracking)
+            newSound.setOnPlaybackStatusUpdate((status) => {
+                if (status.isLoaded) {
+                    setCurrentPosition(status.positionMillis);
+                    setDuration(status.durationMillis);
+                    if (status.didJustFinish) {
+                        setIsPlaying(false);
+                        // Unlock next lesson
+                        setLockedLessonIds(prev => {
+                            const updated = prev.filter(id => id !== lesson.id + 1);
+                            return updated;
+                        });
+                    }
+                }
+            });
+        } catch (error) {
+            console.error('Error playing audio:', error);
+            alert('Error playing audio. Make sure the file exists in assets folder.');
         }
     };
 
@@ -333,7 +387,7 @@ const ProblemSolvingScreen = ({ navigation }) => {
                 >
                     {lessons.map((lesson) => {
                         // Determine if lesson is locked
-                        const isLocked = lesson.id > 1 && !completedLessonIds.includes(lesson.id - 1);
+                        const isLocked = lockedLessonIds.includes(lesson.id);
 
                         return (
                             <TouchableOpacity
@@ -376,7 +430,7 @@ const ProblemSolvingScreen = ({ navigation }) => {
                                                     isLocked && styles.lockedDescription,
                                                 ]}
                                             >
-                                                {isLocked ? 'Locked - Complete previous lesson' : lesson.subdescription}
+                                                {isLocked ? 'Locked' : lesson.subdescription}
                                             </Text>
                                         </View>
 
