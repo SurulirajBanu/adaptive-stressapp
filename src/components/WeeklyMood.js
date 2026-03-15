@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, View, TouchableOpacity, Text, StyleSheet } from 'react-native';
+import { Modal, View, TouchableOpacity, Text, StyleSheet, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { ref, push, set } from 'firebase/database';
+import { database } from '../firebaseConfig';
 
 const moodOptions = [
     { emoji: '😢', label: 'Terrible', value: 1 },
@@ -13,60 +15,60 @@ const moodOptions = [
 export const WeeklyMoodTracker = ({ user }) => {
     const [showMoodRating, setShowMoodRating] = useState(false);
 
-    // Check if mood rating should be shown
     useEffect(() => {
-        if (!user) return;
-
-        const checkAndShowMoodRating = async () => {
-            try {
-                // For testing: always show on app reopen
-                const lastMoodTime = await AsyncStorage.getItem('lastMoodRatingTime');
-
-                if (!lastMoodTime) {
-                    // First time user
-                    setShowMoodRating(true);
-                } else {
-                    // For testing: show every app reopen. Remove this logic later and replace with week check
-                    const lastTime = new Date(lastMoodTime);
-                    const currentTime = new Date();
-                    const daysDifference = (currentTime - lastTime) / (1000 * 60 * 60 * 24);
-
-                    // For now, show every time for testing. Change to daysDifference >= 7 for production
-                    setShowMoodRating(true);
-                    // Production logic: setShowMoodRating(daysDifference >= 7);
-                }
-            } catch (error) {
-                console.error('Error checking mood rating:', error);
-            }
-        };
-
-        checkAndShowMoodRating();
+        if (user) {
+            // Show modal on app launch
+            setShowMoodRating(true);
+        }
     }, [user]);
 
     const handleMoodSelect = async (mood) => {
+        setShowMoodRating(false);
+
         try {
-            await AsyncStorage.setItem('lastMoodRatingTime', new Date().toISOString());
-            await AsyncStorage.setItem(
-                'userMood',
-                JSON.stringify({
-                    mood: mood.value,
-                    label: mood.label,
-                    timestamp: new Date().toISOString(),
-                })
-            );
-            setShowMoodRating(false);
-            console.log('Mood recorded:', mood.label);
+            const now = new Date().toISOString();
+            await AsyncStorage.setItem('lastMoodRatingTime', now);
+            await AsyncStorage.setItem('userMood', JSON.stringify({
+                ...mood,
+                timestamp: now
+            }));
+
+            // Save to Firebase in background (don't wait)
+            if (user?.uid) {
+                saveToFirebase(mood, user);
+            }
         } catch (error) {
-            console.error('Error saving mood:', error);
+            Alert.alert('Error', 'Failed to save mood');
         }
     };
+
+    const saveToFirebase = async (mood, currentUser) => {
+        try {
+            const moodData = {
+                emoji: mood.emoji,
+                label: mood.label,
+                mood: mood.value,
+                userEmail: currentUser.email,
+                createdAt: Date.now()
+            };
+
+            const moodEntriesRef = ref(database, `userMoods/${currentUser.uid}/entries`);
+            const newMoodRef = push(moodEntriesRef);
+            await set(newMoodRef, moodData);
+
+            Alert.alert('Success', 'Mood saved to cloud');
+        } catch (error) {
+            console.error('Error saving mood:', error);
+            Alert.alert('Error', 'Failed to save to cloud');
+        }
+    };
+
 
     return (
         <Modal
             visible={showMoodRating}
             transparent={true}
-            animationType="fade"
-            onRequestClose={() => { }} // No close button - user must select mood
+            animationType="slide"
         >
             <View style={styles.moodModalOverlay}>
                 <View style={styles.moodModalContainer}>
@@ -78,6 +80,7 @@ export const WeeklyMoodTracker = ({ user }) => {
                                 key={mood.value}
                                 style={styles.moodButton}
                                 onPress={() => handleMoodSelect(mood)}
+                                activeOpacity={0.7}
                             >
                                 <Text style={styles.moodEmoji}>{mood.emoji}</Text>
                                 <Text style={styles.moodLabel}>{mood.label}</Text>
@@ -93,52 +96,48 @@ export const WeeklyMoodTracker = ({ user }) => {
 const styles = StyleSheet.create({
     moodModalOverlay: {
         flex: 1,
-        backgroundColor: 'rgba(0, 0, 0, 0.6)',
+        backgroundColor: 'rgba(0, 0, 0, 0.7)',
         justifyContent: 'center',
         alignItems: 'center',
     },
     moodModalContainer: {
-        backgroundColor: 'white',
-        borderRadius: 20,
-        paddingVertical: 32,
-        paddingHorizontal: 24,
-        width: '85%',
-        maxWidth: 380,
+        backgroundColor: '#FFFFFF',
+        borderRadius: 25,
+        padding: 24,
+        width: '90%',
+        elevation: 20,
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 8,
-        elevation: 10,
+        shadowOffset: { width: 0, height: 10 },
+        shadowOpacity: 0.25,
+        shadowRadius: 10,
     },
     moodModalTitle: {
-        fontSize: 20,
-        fontWeight: '700',
-        color: '#2f4f4f',
+        fontSize: 22,
+        fontWeight: 'bold',
+        color: '#2D4F4F',
         textAlign: 'center',
-        marginBottom: 28,
+        marginBottom: 30,
     },
     moodButtonsContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        alignItems: 'center',
-        gap: 4,
+        gap: 8,
     },
     moodButton: {
         flex: 1,
         alignItems: 'center',
-        paddingVertical: 10,
-        paddingHorizontal: 4,
-        borderRadius: 12,
-        backgroundColor: '#f5f5f5',
+        paddingVertical: 12,
+        borderRadius: 15,
+        backgroundColor: '#F0F7F4', // Light version of your theme green
     },
     moodEmoji: {
-        fontSize: 32,
-        marginBottom: 4,
+        fontSize: 30,
+        marginBottom: 5,
     },
     moodLabel: {
-        fontSize: 12,
-        fontWeight: '600',
-        color: '#4f7f6b',
-        textAlign: 'center',
+        fontSize: 10,
+        fontWeight: '700',
+        color: '#4F7F6B',
+        textTransform: 'uppercase',
     },
 });
