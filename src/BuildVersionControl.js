@@ -11,6 +11,11 @@
 import React, { createContext, useContext } from 'react';
 
 // ============================================
+// TEST MODE
+// ============================================
+export const TEST_MODE = true; // Set to true to show additional debug/test UI
+
+// ============================================
 // NAVIGATION VISIBILITY LEVEL CONFIG
 // ============================================
 // Default visibility level (can be overridden dynamically from Profile)

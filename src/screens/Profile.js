@@ -20,6 +20,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Notifications from 'expo-notifications';
 import Navigation from '../components/Navigation';
 import { useNavigationVisibilityControl, NAV_VISIBILITY_LEVELS } from '../BuildVersionControl';
+import { TEST_MODE } from '../BuildVersionControl';
 
 export default function ProfileScreen({ navigation }) {
   const { visibilityLevel, setVisibilityLevel } = useNavigationVisibilityControl();
@@ -240,29 +241,31 @@ export default function ProfileScreen({ navigation }) {
               )}
             </View>
 
-            <View style={styles.reminderCard}>
-              <Text style={styles.cardTitle}>Build Version</Text>
-              <Text style={styles.subText}>Current Level: {visibilityLevel}</Text>
-              {NAV_VISIBILITY_LEVELS.map((versionObj) => (
-                <TouchableOpacity
-                  key={versionObj.level}
-                  style={[
-                    styles.versionButton,
-                    visibilityLevel === versionObj.level && styles.versionButtonActive,
-                  ]}
-                  onPress={() => handleVisibilityLevelChange(versionObj.level)}
-                >
-                  <Text
+            {TEST_MODE && (
+              <View style={styles.reminderCard}>
+                <Text style={styles.cardTitle}>Build Version</Text>
+                <Text style={styles.subText}>Current Level: {visibilityLevel}</Text>
+                {NAV_VISIBILITY_LEVELS.map((versionObj) => (
+                  <TouchableOpacity
+                    key={versionObj.level}
                     style={[
-                      styles.versionButtonText,
-                      visibilityLevel === versionObj.level && styles.versionButtonTextActive,
+                      styles.versionButton,
+                      visibilityLevel === versionObj.level && styles.versionButtonActive,
                     ]}
+                    onPress={() => handleVisibilityLevelChange(versionObj.level)}
                   >
-                    {versionObj.label}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
+                    <Text
+                      style={[
+                        styles.versionButtonText,
+                        visibilityLevel === versionObj.level && styles.versionButtonTextActive,
+                      ]}
+                    >
+                      {versionObj.label}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            )}
           </ScrollView>
         </View>
 
