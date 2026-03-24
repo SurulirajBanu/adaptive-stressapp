@@ -11,12 +11,38 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { ref, push } from 'firebase/database';
+import { auth, database } from '../firebaseConfig';
 import Navigation from '../components/Navigation';
+
+const saveBreathingSession = async (startTime, endTime) => {
+  const user = auth.currentUser;
+  if (!user || !startTime) return;
+
+  const durationSeconds = Math.round((endTime - startTime) / 1000);
+  if (durationSeconds < 1) return;
+
+  const sessionData = {
+    email: user.email,
+    userId: user.uid,
+    date: startTime.toLocaleDateString('en-CA'), // YYYY-MM-DD
+    startTime: startTime.toISOString(),
+    endTime: endTime.toISOString(),
+    durationSeconds,
+  };
+
+  try {
+    await push(ref(database, `breathingSessions/${user.uid}`), sessionData);
+  } catch (error) {
+    console.error('Failed to save breathing session:', error);
+  }
+};
 
 const BreathingScreen = ({ navigation }) => {
   const [isAnimating, setIsAnimating] = useState(false);
   const [instruction, setInstruction] = useState('Follow the ball and focus on your breathing');
   const scaleAnim = useRef(new Animated.Value(1)).current;
+  const sessionStartTime = useRef(null);
 
   const breatheAnimation = Animated.loop(
     Animated.sequence([
@@ -79,7 +105,25 @@ const BreathingScreen = ({ navigation }) => {
     return () => clearInterval(interval);
   }, [isAnimating]);
 
+  // Save session if user navigates away mid-exercise
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('blur', () => {
+      if (sessionStartTime.current) {
+        saveBreathingSession(sessionStartTime.current, new Date());
+        sessionStartTime.current = null;
+        setIsAnimating(false);
+      }
+    });
+    return unsubscribe;
+  }, [navigation]);
+
   const handleBeginPress = () => {
+    if (!isAnimating) {
+      sessionStartTime.current = new Date();
+    } else {
+      saveBreathingSession(sessionStartTime.current, new Date());
+      sessionStartTime.current = null;
+    }
     setIsAnimating(prevState => !prevState);
   };
 
