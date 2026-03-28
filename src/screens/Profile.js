@@ -76,15 +76,19 @@ export default function ProfileScreen({ navigation }) {
     loadSettings();
   }, []);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     const user = auth.currentUser;
     if (user) {
-      push(ref(database, `userSessions/${user.uid}`), {
-        event: 'logout',
-        email: user.email,
-        userId: user.uid,
-        timestamp: formatDate(new Date()),
-      });
+      try {
+        await push(ref(database, `userSessions/${user.uid}`), {
+          event: 'logout',
+          email: user.email,
+          userId: user.uid,
+          timestamp: formatDate(new Date()),
+        });
+      } catch (error) {
+        console.log('Failed to save logout session:', error);
+      }
     }
     signOut(auth).catch(error => console.log('Logout Error:', error.message));
   };
