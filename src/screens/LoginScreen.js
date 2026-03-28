@@ -18,7 +18,13 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { signInWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../firebaseConfig';
+import { ref, push } from 'firebase/database';
+import { auth, database } from '../firebaseConfig';
+
+const formatDate = (date) => date.toLocaleString('en-US', {
+  year: 'numeric', month: 'long', day: 'numeric',
+  hour: '2-digit', minute: '2-digit', second: '2-digit',
+});
 
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('');
@@ -30,9 +36,17 @@ export default function LoginScreen({ navigation }) {
       return;
     }
 
-    signInWithEmailAndPassword(auth, email, password).catch(error =>
-      Alert.alert('Login Error', error.message)
-    );
+    signInWithEmailAndPassword(auth, email, password)
+      .then((userCredential) => {
+        const user = userCredential.user;
+        push(ref(database, `userSessions/${user.uid}`), {
+          event: 'login',
+          email: user.email,
+          userId: user.uid,
+          timestamp: formatDate(new Date()),
+        });
+      })
+      .catch(error => Alert.alert('Login Error', error.message));
   };
 
   return (

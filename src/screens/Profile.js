@@ -14,8 +14,14 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import { auth } from '../firebaseConfig';
+import { auth, database } from '../firebaseConfig';
 import { signOut } from 'firebase/auth';
+import { ref, push } from 'firebase/database';
+
+const formatDate = (date) => date.toLocaleString('en-US', {
+  year: 'numeric', month: 'long', day: 'numeric',
+  hour: '2-digit', minute: '2-digit', second: '2-digit',
+});
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Notifications from 'expo-notifications';
 import Navigation from '../components/Navigation';
@@ -71,6 +77,15 @@ export default function ProfileScreen({ navigation }) {
   }, []);
 
   const handleLogout = () => {
+    const user = auth.currentUser;
+    if (user) {
+      push(ref(database, `userSessions/${user.uid}`), {
+        event: 'logout',
+        email: user.email,
+        userId: user.uid,
+        timestamp: formatDate(new Date()),
+      });
+    }
     signOut(auth).catch(error => console.log('Logout Error:', error.message));
   };
 
