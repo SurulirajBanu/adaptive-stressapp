@@ -81,6 +81,8 @@ export default function LoginScreen({ navigation }) {
               onChangeText={setPassword}
               style={styles.input}
               secureTextEntry
+              autoCapitalize="none"
+              autoCorrect={false}
             />
 
             <TouchableOpacity onPress={handleLogin} style={styles.button}>
