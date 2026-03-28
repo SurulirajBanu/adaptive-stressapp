@@ -11,6 +11,8 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { ref, set } from 'firebase/database';
+import { auth, database } from '../firebaseConfig';
 import Navigation from '../components/Navigation';
 
 const MOOD_TYPES = {
@@ -50,6 +52,21 @@ export default function MoodCalendar({ navigation }) {
             const updatedMoods = { ...moods, [dateKey]: mood };
             setMoods(updatedMoods);
             await AsyncStorage.setItem('moodHistory', JSON.stringify(updatedMoods));
+
+            const user = auth.currentUser;
+            if (user) {
+                await set(ref(database, `moodCalendar/${user.uid}/${dateKey}`), {
+                    email: user.email,
+                    userId: user.uid,
+                    mood,
+                    emoji: MOOD_TYPES[mood].emoji,
+                    label: MOOD_TYPES[mood].label,
+                    createdAt: today.toLocaleString('en-US', {
+                        year: 'numeric', month: 'long', day: 'numeric',
+                        hour: '2-digit', minute: '2-digit', second: '2-digit',
+                    }),
+                });
+            }
         } catch (error) {
             console.log('Error saving mood:', error);
         }

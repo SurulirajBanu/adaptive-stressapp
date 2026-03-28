@@ -17,10 +17,25 @@ export const WeeklyMoodTracker = ({ user }) => {
 
     useEffect(() => {
         if (user) {
-            // Show modal on app launch
-            setShowMoodRating(true);
+            checkAndShowMoodRating();
         }
     }, [user]);
+
+    const checkAndShowMoodRating = async () => {
+        try {
+            const lastRating = await AsyncStorage.getItem('lastMoodRatingTime');
+            if (!lastRating) {
+                setShowMoodRating(true);
+                return;
+            }
+            const daysSinceLastRating = (new Date() - new Date(lastRating)) / (1000 * 60 * 60 * 24);
+            if (daysSinceLastRating >= 7) {
+                setShowMoodRating(true);
+            }
+        } catch (error) {
+            setShowMoodRating(true);
+        }
+    };
 
     const handleMoodSelect = async (mood) => {
         setShowMoodRating(false);
@@ -49,7 +64,10 @@ export const WeeklyMoodTracker = ({ user }) => {
                 label: mood.label,
                 mood: mood.value,
                 userEmail: currentUser.email,
-                createdAt: Date.now()
+                createdAt: new Date().toLocaleString('en-US', {
+                    year: 'numeric', month: 'long', day: 'numeric',
+                    hour: '2-digit', minute: '2-digit', second: '2-digit',
+                }),
             };
 
             const moodEntriesRef = ref(database, `userMoods/${currentUser.uid}/entries`);

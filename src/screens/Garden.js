@@ -16,8 +16,8 @@ import Navigation from '../components/Navigation';
 
 const { width, height } = Dimensions.get('window');
 
-// Constant for timeout duration (in seconds)
-const EXERCISE_TIMEOUT_SECONDS = 3600; // 1 hour
+// Constant for timeout duration (in hours)
+const EXERCISE_TIMEOUT_HOURS = 24;
 
 const GardenScreen = ({ navigation }) => {
   const [isHealthy, setIsHealthy] = useState(true);
@@ -33,9 +33,9 @@ const GardenScreen = ({ navigation }) => {
           if (lastExerciseTime) {
             const lastTime = new Date(lastExerciseTime);
             const currentTime = new Date();
-            const secondsDifference = (currentTime - lastTime) / 1000;
+            const hoursDifference = (currentTime - lastTime) / (1000 * 60 * 60);
 
-            setIsHealthy(secondsDifference <= EXERCISE_TIMEOUT_SECONDS);
+            setIsHealthy(hoursDifference <= EXERCISE_TIMEOUT_HOURS);
           } else {
             setIsHealthy(false); // No exercise recorded, garden is unhealthy
           }

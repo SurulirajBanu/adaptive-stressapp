@@ -14,7 +14,37 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Audio } from 'expo-av';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { ref, push } from 'firebase/database';
+import { auth, database } from '../firebaseConfig';
 import Navigation from '../components/Navigation';
+
+const formatDate = (date) => date.toLocaleString('en-US', {
+    year: 'numeric', month: 'long', day: 'numeric',
+    hour: '2-digit', minute: '2-digit', second: '2-digit',
+});
+
+const saveProblemSolvingSession = async (lessonTitle, startTime, endTime) => {
+    const user = auth.currentUser;
+    if (!user || !startTime) return;
+
+    const durationSeconds = Math.round((endTime - startTime) / 1000);
+    if (durationSeconds < 1) return;
+
+    const sessionData = {
+        email: user.email,
+        userId: user.uid,
+        lessonTitle,
+        startTime: formatDate(startTime),
+        endTime: formatDate(endTime),
+        durationSeconds,
+    };
+
+    try {
+        await push(ref(database, `problemSolvingSessions/${user.uid}`), sessionData);
+    } catch (error) {
+        console.error('Failed to save problem solving session:', error);
+    }
+};
 
 // Static audio file mapping
 const audioFiles = {
@@ -44,6 +74,8 @@ const ProblemSolvingScreen = ({ navigation }) => {
     const [isSeeking, setIsSeeking] = useState(false);
     const panResponderRef = React.useRef(null);
     const progressViewRef = React.useRef(null);
+    const sessionStartTime = React.useRef(null);
+    const currentLessonTitle = React.useRef(null);
 
     // Load locked lessons from AsyncStorage on mount
     useEffect(() => {
@@ -261,7 +293,10 @@ const ProblemSolvingScreen = ({ navigation }) => {
                     if (isPlaying) {
                         await sound.pauseAsync();
                         setIsPlaying(false);
+                        saveProblemSolvingSession(currentLessonTitle.current, sessionStartTime.current, new Date());
+                        sessionStartTime.current = null;
                     } else {
+                        sessionStartTime.current = new Date();
                         await sound.playAsync();
                         setIsPlaying(true);
                     }
@@ -271,6 +306,10 @@ const ProblemSolvingScreen = ({ navigation }) => {
 
             // Stop current audio if playing different one
             if (sound) {
+                if (sessionStartTime.current) {
+                    saveProblemSolvingSession(currentLessonTitle.current, sessionStartTime.current, new Date());
+                    sessionStartTime.current = null;
+                }
                 await sound.unloadAsync();
             }
 
@@ -284,7 +323,9 @@ const ProblemSolvingScreen = ({ navigation }) => {
             const { sound: newSound } = await Audio.Sound.createAsync(audioSource);
             setSound(newSound);
             setCurrentLessonId(lesson.id);
+            currentLessonTitle.current = lesson.title;
             setCurrentPosition(0);
+            sessionStartTime.current = new Date();
             await newSound.playAsync();
             setIsPlaying(true);
 
@@ -295,6 +336,8 @@ const ProblemSolvingScreen = ({ navigation }) => {
                     setDuration(status.durationMillis);
                     if (status.didJustFinish) {
                         setIsPlaying(false);
+                        saveProblemSolvingSession(lesson.title, sessionStartTime.current, new Date());
+                        sessionStartTime.current = null;
                         // Unlock next lesson
                         setLockedLessonIds(prev => {
                             const updated = prev.filter(id => id !== lesson.id + 1);
@@ -308,6 +351,17 @@ const ProblemSolvingScreen = ({ navigation }) => {
             alert('Error playing audio. Make sure the file exists in assets folder.');
         }
     };
+
+    // Save session if user navigates away mid-lesson
+    useEffect(() => {
+        const unsubscribe = navigation.addListener('blur', () => {
+            if (sessionStartTime.current) {
+                saveProblemSolvingSession(currentLessonTitle.current, sessionStartTime.current, new Date());
+                sessionStartTime.current = null;
+            }
+        });
+        return unsubscribe;
+    }, [navigation]);
 
     // Cleanup audio on component unmount
     useEffect(() => {

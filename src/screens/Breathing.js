@@ -15,6 +15,11 @@ import { ref, push } from 'firebase/database';
 import { auth, database } from '../firebaseConfig';
 import Navigation from '../components/Navigation';
 
+const formatDate = (date) => date.toLocaleString('en-US', {
+  year: 'numeric', month: 'long', day: 'numeric',
+  hour: '2-digit', minute: '2-digit', second: '2-digit',
+});
+
 const saveBreathingSession = async (startTime, endTime) => {
   const user = auth.currentUser;
   if (!user || !startTime) return;
@@ -25,9 +30,8 @@ const saveBreathingSession = async (startTime, endTime) => {
   const sessionData = {
     email: user.email,
     userId: user.uid,
-    date: startTime.toLocaleDateString('en-CA'), // YYYY-MM-DD
-    startTime: startTime.toISOString(),
-    endTime: endTime.toISOString(),
+    startTime: formatDate(startTime),
+    endTime: formatDate(endTime),
     durationSeconds,
   };
 
