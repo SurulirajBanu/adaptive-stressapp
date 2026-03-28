@@ -1,3 +1,16 @@
+/**
+ * MoodCalendar.js — Daily mood tracking calendar.
+ *
+ * Users select one of five moods (Terrible → Excellent) for the current day.
+ * The selection is stored both locally (AsyncStorage 'moodHistory') and in
+ * Firebase Realtime Database under moodCalendar/{uid}/{YYYY-MM-DD}.
+ *
+ * Using `set` (not `push`) means updating today's mood overwrites the previous
+ * selection rather than creating duplicate entries.
+ *
+ * The calendar displays the full month with emoji indicators on logged days,
+ * and supports month-by-month navigation.
+ */
 import React, { useState, useEffect } from 'react';
 import {
     StyleSheet,

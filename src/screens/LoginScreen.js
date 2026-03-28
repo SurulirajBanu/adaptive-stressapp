@@ -1,3 +1,9 @@
+/**
+ * LoginScreen.js — Email/password authentication screen.
+ *
+ * Authenticates the user via Firebase Auth. On success the auth state
+ * listener in App.js switches the navigation stack to the authenticated flow.
+ */
 import React, { useState } from 'react';
 import {
   StyleSheet,

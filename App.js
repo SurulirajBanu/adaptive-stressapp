@@ -1,3 +1,12 @@
+/**
+ * App.js — Root application entry point.
+ *
+ * Responsibilities:
+ * - Firebase auth state listener (determines logged-in vs. logged-out navigation stack)
+ * - Push notification setup and foreground/tap listeners
+ * - Navigation visibility level loaded from AsyncStorage and provided via context
+ * - WeeklyMoodTracker rendered outside NavigationContainer so it overlays all screens
+ */
 import React, { useState, useEffect, useRef } from 'react';
 import { View, ActivityIndicator, StyleSheet, Platform } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';

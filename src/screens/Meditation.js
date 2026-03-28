@@ -1,3 +1,15 @@
+/**
+ * Meditation.js — Guided meditation audio player.
+ *
+ * Features:
+ * - 13 audio sessions that unlock sequentially (complete one → next unlocks)
+ * - Progress bar with tap-to-seek and drag support via PanResponder
+ * - Records lastExerciseTime in AsyncStorage (used by Garden health state)
+ * - Saves session (title, start/end time, duration) to Firebase under
+ *   meditationSessions/{uid} on pause, finish, or screen blur
+ *
+ * Lock state is persisted in AsyncStorage under 'lockedMeditationIds'.
+ */
 import React, { useState, useEffect } from 'react';
 import {
     StyleSheet,

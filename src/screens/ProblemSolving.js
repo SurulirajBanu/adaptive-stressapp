@@ -1,3 +1,15 @@
+/**
+ * ProblemSolving.js — Problem-focused coping strategy audio lessons.
+ *
+ * Features:
+ * - 12 audio lessons covering problem-focused coping techniques
+ * - Sequential unlock system (same pattern as Meditation.js)
+ * - Progress bar with tap-to-seek and drag support
+ * - Saves session (lesson title, start/end time, duration) to Firebase under
+ *   problemSolvingSessions/{uid} on pause, finish, or screen blur
+ *
+ * Lock state is persisted in AsyncStorage under 'lockedLessonIds'.
+ */
 import React, { useState, useEffect } from 'react';
 import {
     StyleSheet,

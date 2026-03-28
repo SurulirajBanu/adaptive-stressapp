@@ -1,3 +1,19 @@
+/**
+ * WeeklyMood.js — Weekly mood rating modal.
+ *
+ * Displayed as an overlay (rendered in App.js, outside NavigationContainer)
+ * so it appears on top of any screen at app launch.
+ *
+ * Frequency logic:
+ * - First launch (no 'lastMoodRatingTime' in AsyncStorage) → shows immediately
+ * - Subsequent launches → shows only if 7+ days have passed since last rating
+ *
+ * On submission the selected mood is saved to:
+ * - AsyncStorage: 'userMood' (latest mood) and 'lastMoodRatingTime' (timestamp)
+ * - Firebase Realtime Database: userMoods/{uid}/entries/{pushId}
+ *
+ * @param {object} user - Firebase Auth user object (null when logged out)
+ */
 import React, { useState, useEffect } from 'react';
 import { Modal, View, TouchableOpacity, Text, StyleSheet, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';

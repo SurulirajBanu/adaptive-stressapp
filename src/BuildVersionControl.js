@@ -13,7 +13,7 @@ import React, { createContext, useContext } from 'react';
 // ============================================
 // TEST MODE
 // ============================================
-export const TEST_MODE = true; // Set to true to show additional debug/test UI
+export const TEST_MODE = false; // Set to true to show additional debug/test UI
 
 // ============================================
 // NAVIGATION VISIBILITY LEVEL CONFIG

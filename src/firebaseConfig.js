@@ -1,3 +1,21 @@
+/**
+ * firebaseConfig.js — Firebase initialisation and service exports.
+ *
+ * Exports:
+ *   auth     — Firebase Auth instance (AsyncStorage persistence, survives restarts)
+ *   db       — Firestore instance (long-polling enabled for React Native compatibility)
+ *   database — Firebase Realtime Database instance
+ *
+ * Guard against duplicate initialisation (getApps().length > 0) prevents crashes
+ * from React Native Fast Refresh re-running this module.
+ *
+ * Realtime Database paths used across the app:
+ *   breathingSessions/{uid}        — Breathing.js
+ *   meditationSessions/{uid}       — Meditation.js
+ *   problemSolvingSessions/{uid}   — ProblemSolving.js
+ *   moodCalendar/{uid}/{YYYY-MM-DD}— MoodCalendar.js
+ *   userMoods/{uid}/entries        — WeeklyMood.js
+ */
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { initializeAuth, getReactNativePersistence, getAuth } from "firebase/auth";
 import { initializeFirestore } from "firebase/firestore";

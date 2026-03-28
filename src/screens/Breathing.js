@@ -1,3 +1,16 @@
+/**
+ * Breathing.js — Guided breathing exercise screen.
+ *
+ * Implements the 4-7-8 breathing pattern:
+ *   4 s  — Breathe In
+ *   7 s  — Hold
+ *   8 s  — Breathe Out  (cycle = 19 s)
+ *
+ * Session tracking:
+ * - Records lastExerciseTime in AsyncStorage (used by Garden health state)
+ * - Saves start/end time and duration to Firebase under breathingSessions/{uid}
+ * - Session is saved on Stop, or when the user navigates away (blur event)
+ */
 import React, { useState, useRef, useEffect } from 'react';
 import {
   StyleSheet,

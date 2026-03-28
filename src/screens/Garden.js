@@ -1,3 +1,16 @@
+/**
+ * Garden.js — Visual wellness indicator screen.
+ *
+ * The garden reflects the user's recent exercise activity:
+ * - Healthy  : an exercise was completed within the last 24 hours
+ * - Unhealthy: no exercise recorded, or last exercise was > 24 hours ago
+ *
+ * Health state is checked on screen focus and polled every second via setInterval.
+ * The 'lastExerciseTime' AsyncStorage key is written by Breathing.js,
+ * Meditation.js, and ProblemSolving.js whenever a session is active.
+ *
+ * EXERCISE_TIMEOUT_HOURS controls the health window (currently 24 h).
+ */
 import React, { useState, useEffect, useRef } from 'react';
 import {
   StyleSheet,

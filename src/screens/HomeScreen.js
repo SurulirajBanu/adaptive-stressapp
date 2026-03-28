@@ -1,3 +1,12 @@
+/**
+ * HomeScreen.js — Main practice hub (navigation level 1 & 2).
+ *
+ * Entry point for the two primary mindfulness tools:
+ * - Breathing Exercises
+ * - Meditation Sessions
+ *
+ * Resolves the display name from Firebase Auth (displayName → email prefix fallback).
+ */
 import React, { useState, useEffect } from 'react';
 import {
   StyleSheet,
