@@ -9,6 +9,7 @@
  */
 
 import React, { createContext, useContext } from 'react';
+import Constants from 'expo-constants';
 
 // ============================================
 // TEST MODE
@@ -18,11 +19,12 @@ export const TEST_MODE = false; // Set to true to show additional debug/test UI
 // ============================================
 // NAVIGATION VISIBILITY LEVEL CONFIG
 // ============================================
-// Default visibility level (can be overridden dynamically from Profile)
+// Default visibility level — read from app.config.js extra.navLevel (injected at
+// build time via APP_VARIANT env var). Falls back to 1 in local dev.
 // - Level 1: Home, Garden, Profile (minimal view)
 // - Level 2: Home, Mood, Profile (minimal with alternatives)
 // - Level 3: Home2, Garden, Profile (full view)
-export const DEFAULT_NAV_VISIBILITY_LEVEL = 1;
+export const DEFAULT_NAV_VISIBILITY_LEVEL = Constants.expoConfig?.extra?.navLevel ?? 1;
 export const NAV_VISIBILITY_LEVELS = [
     { level: 1, label: 'Version 1 (Home, Garden, Profile)' },
     { level: 2, label: 'Version 2 (Home, Mood, Profile)' },

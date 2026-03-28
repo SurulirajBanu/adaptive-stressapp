@@ -14,6 +14,33 @@
         "buildType": "apk"
       }
     },
+    "version1": {
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "APP_VARIANT": "version1"
+      }
+    },
+    "version2": {
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "APP_VARIANT": "version2"
+      }
+    },
+    "version3": {
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "APP_VARIANT": "version3"
+      }
+    },
     "production": {
       "autoIncrement": true
     }
