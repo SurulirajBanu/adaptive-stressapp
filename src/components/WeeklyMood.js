@@ -19,6 +19,7 @@ import { Modal, View, TouchableOpacity, Text, StyleSheet, Alert } from 'react-na
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ref, push, set } from 'firebase/database';
 import { database } from '../firebaseConfig';
+import { DEFAULT_NAV_VISIBILITY_LEVEL } from '../BuildVersionControl';
 
 const moodOptions = [
     { emoji: '😢', label: 'Terrible', value: 1 },
@@ -80,6 +81,7 @@ export const WeeklyMoodTracker = ({ user }) => {
                 label: mood.label,
                 mood: mood.value,
                 userEmail: currentUser.email,
+                appVersion: DEFAULT_NAV_VISIBILITY_LEVEL,
                 createdAt: new Date().toLocaleString('en-US', {
                     year: 'numeric', month: 'long', day: 'numeric',
                     hour: '2-digit', minute: '2-digit', second: '2-digit',

@@ -41,7 +41,7 @@ module.exports = {
       infoPlist: {
         UIBackgroundModes: ["remote-notification"],
       },
-      bundleIdentifier: "com.anonymous.adaptivestressapp",
+      bundleIdentifier: "com.mona.adaptivestressapp",
     },
     android: {
       adaptiveIcon: {
@@ -49,7 +49,7 @@ module.exports = {
         backgroundColor: "#ffffff",
       },
       edgeToEdgeEnabled: true,
-      package: "com.anonymous.adaptivestressapp",
+      package: "com.mona.adaptivestressapp",
       permissions: [
         "RECEIVE_BOOT_COMPLETED",
         "VIBRATE",

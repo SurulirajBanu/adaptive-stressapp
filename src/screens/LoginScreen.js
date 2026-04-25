@@ -20,6 +20,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { ref, push } from 'firebase/database';
 import { auth, database } from '../firebaseConfig';
+import { DEFAULT_NAV_VISIBILITY_LEVEL } from '../BuildVersionControl';
 
 const formatDate = (date) => date.toLocaleString('en-US', {
   year: 'numeric', month: 'long', day: 'numeric',
@@ -43,6 +44,7 @@ export default function LoginScreen({ navigation }) {
           event: 'login',
           email: user.email,
           userId: user.uid,
+          appVersion: DEFAULT_NAV_VISIBILITY_LEVEL,
           timestamp: formatDate(new Date()),
         });
       })

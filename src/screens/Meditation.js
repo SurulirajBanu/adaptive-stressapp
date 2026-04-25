@@ -28,6 +28,7 @@ import { Audio } from 'expo-av';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ref, push } from 'firebase/database';
 import { auth, database } from '../firebaseConfig';
+import { DEFAULT_NAV_VISIBILITY_LEVEL } from '../BuildVersionControl';
 import Navigation from '../components/Navigation';
 
 const formatDate = (date) => date.toLocaleString('en-US', {
@@ -49,6 +50,7 @@ const saveMeditationSession = async (meditationTitle, startTime, endTime) => {
         startTime: formatDate(startTime),
         endTime: formatDate(endTime),
         durationSeconds,
+        appVersion: DEFAULT_NAV_VISIBILITY_LEVEL,
     };
 
     try {

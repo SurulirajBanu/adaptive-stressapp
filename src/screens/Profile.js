@@ -25,7 +25,7 @@ const formatDate = (date) => date.toLocaleString('en-US', {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Notifications from 'expo-notifications';
 import Navigation from '../components/Navigation';
-import { useNavigationVisibilityControl, NAV_VISIBILITY_LEVELS } from '../BuildVersionControl';
+import { useNavigationVisibilityControl, NAV_VISIBILITY_LEVELS, DEFAULT_NAV_VISIBILITY_LEVEL } from '../BuildVersionControl';
 import { TEST_MODE } from '../BuildVersionControl';
 
 export default function ProfileScreen({ navigation }) {
@@ -84,6 +84,7 @@ export default function ProfileScreen({ navigation }) {
           event: 'logout',
           email: user.email,
           userId: user.uid,
+          appVersion: DEFAULT_NAV_VISIBILITY_LEVEL,
           timestamp: formatDate(new Date()),
         });
       } catch (error) {

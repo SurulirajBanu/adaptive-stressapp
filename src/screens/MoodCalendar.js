@@ -26,6 +26,7 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ref, set } from 'firebase/database';
 import { auth, database } from '../firebaseConfig';
+import { DEFAULT_NAV_VISIBILITY_LEVEL } from '../BuildVersionControl';
 import Navigation from '../components/Navigation';
 
 const MOOD_TYPES = {
@@ -74,6 +75,7 @@ export default function MoodCalendar({ navigation }) {
                     mood,
                     emoji: MOOD_TYPES[mood].emoji,
                     label: MOOD_TYPES[mood].label,
+                    appVersion: DEFAULT_NAV_VISIBILITY_LEVEL,
                     createdAt: today.toLocaleString('en-US', {
                         year: 'numeric', month: 'long', day: 'numeric',
                         hour: '2-digit', minute: '2-digit', second: '2-digit',
