@@ -105,7 +105,7 @@ export default function App() {
       <WeeklyMoodTracker user={user} />
       <NavigationVisibilityProvider visibilityLevel={visibilityLevel} setVisibilityLevel={setVisibilityLevel}>
         <NavigationContainer>
-          <Stack.Navigator>
+          <Stack.Navigator initialRouteName={user ? (visibilityLevel === 3 ? 'Home2' : 'Home') : 'Login'}>
             {user ? (
               <>
                 <Stack.Screen

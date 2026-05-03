@@ -21,7 +21,7 @@ import {
     ImageBackground,
     ScrollView,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ref, set } from 'firebase/database';
@@ -40,6 +40,7 @@ const MOOD_TYPES = {
 const MOOD_KEYS = ['terrible', 'bad', 'okay', 'good', 'excellent'];
 
 export default function MoodCalendar({ navigation }) {
+    const insets = useSafeAreaInsets();
     const [currentDate, setCurrentDate] = useState(new Date());
     const [moods, setMoods] = useState({});
 
@@ -113,10 +114,11 @@ export default function MoodCalendar({ navigation }) {
     const renderCalendarDays = () => {
         const daysInMonth = getDaysInMonth(currentDate);
         const firstDay = getFirstDayOfMonth(currentDate);
+        const adjustedFirstDay = (firstDay + 6) % 7;
         const days = [];
 
         // Empty cells for days before month starts
-        for (let i = 0; i < firstDay; i++) {
+        for (let i = 0; i < adjustedFirstDay; i++) {
             days.push(
                 <View key={`empty-${i}`} style={styles.calendarDay}>
                     <Text style={styles.dayNumber}></Text>
@@ -155,7 +157,7 @@ export default function MoodCalendar({ navigation }) {
                 <StatusBar barStyle="dark-content" />
 
                 {/* Header */}
-                <View style={styles.header}>
+                <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
                     <Text style={styles.headerTitle}>Mood Tracker</Text>
                 </View>
 
@@ -240,7 +242,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         paddingHorizontal: 16,
-        paddingTop: 40,
+        paddingTop: 0,
         paddingBottom: 12,
         backgroundColor: 'rgba(255, 255, 255, 0.9)',
         borderBottomWidth: 1,

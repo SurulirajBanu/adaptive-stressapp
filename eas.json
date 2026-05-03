@@ -41,11 +41,48 @@
         "APP_VARIANT": "version3"
       }
     },
+    "version1-ios": {
+      "distribution": "store",
+      "ios": {
+        "simulator": false
+      },
+      "env": {
+        "APP_VARIANT": "version1"
+      }
+    },
+    "version2-ios": {
+      "distribution": "store",
+      "autoIncrement": true,
+      "ios": {
+        "simulator": false
+      },
+      "env": {
+        "APP_VARIANT": "version2"
+      }
+    },
+    "version3-ios": {
+      "distribution": "store",
+      "autoIncrement": true,
+      "ios": {
+        "simulator": false
+      },
+      "env": {
+        "APP_VARIANT": "version3"
+      }
+    },
     "production": {
       "autoIncrement": true
     }
   },
   "submit": {
-    "production": {}
+    "production": {
+      "ios": {
+        "appleTeamId": "QP5A2H6K3Z",
+        "ascAppId": "6763785888",
+        "ascApiKeyPath": "./AuthKey_7X5WY36QM6.p8",
+        "ascApiKeyIssuerId": "c04d2bd1-45df-4a9f-86af-652ac28bebc1",
+        "ascApiKeyId": "7X5WY36QM6"
+      }
+    }
   }
 }
