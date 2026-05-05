@@ -40,6 +40,7 @@ module.exports = {
       supportsTablet: true,
       infoPlist: {
         UIBackgroundModes: ["remote-notification"],
+        ITSAppUsesNonExemptEncryption: false,
       },
       bundleIdentifier: "com.mona.adaptivestressapp",
     },

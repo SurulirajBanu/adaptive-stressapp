@@ -9,7 +9,7 @@ import {
     ScrollView,
     FlatList,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
@@ -26,6 +26,7 @@ const CATEGORY_COLORS = {
 };
 
 export default function StressTracker({ navigation }) {
+    const insets = useSafeAreaInsets();
     const [stressItems, setStressItems] = useState([]);
 
     useFocusEffect(
@@ -112,7 +113,7 @@ export default function StressTracker({ navigation }) {
             <SafeAreaView style={styles.container} edges={['right', 'left', 'bottom']}>
                 <StatusBar barStyle="dark-content" />
 
-                <View style={styles.header}>
+                <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
                     <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
                         <Ionicons name="chevron-back" size={28} color="#333" />
                     </TouchableOpacity>
@@ -165,7 +166,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'space-between',
         paddingHorizontal: 16,
-        paddingTop: 40,
+        paddingTop: 0,
         paddingBottom: 12,
         backgroundColor: 'rgba(255, 255, 255, 0.9)',
         borderBottomWidth: 1,

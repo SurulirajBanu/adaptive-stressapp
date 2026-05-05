@@ -20,7 +20,7 @@ import {
   ImageBackground,
   Animated,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -58,6 +58,7 @@ const saveBreathingSession = async (startTime, endTime) => {
 };
 
 const BreathingScreen = ({ navigation }) => {
+  const insets = useSafeAreaInsets();
   const [isAnimating, setIsAnimating] = useState(false);
   const [instruction, setInstruction] = useState('Follow the ball and focus on your breathing');
   const scaleAnim = useRef(new Animated.Value(1)).current;
@@ -153,7 +154,7 @@ const BreathingScreen = ({ navigation }) => {
       resizeMode="cover"
     >
       <SafeAreaView style={styles.container} edges={['right', 'left', 'bottom']}>
-        <View style={styles.header}>
+        <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
           <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
             <Ionicons name="chevron-back" size={28} color="#333" />
           </TouchableOpacity>
@@ -212,7 +213,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
-    paddingTop: 40,
+    paddingTop: 0,
     paddingBottom: 12,
     backgroundColor: 'rgba(255, 255, 255, 0.9)',
     borderBottomWidth: 1,

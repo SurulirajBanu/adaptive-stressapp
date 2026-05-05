@@ -12,7 +12,7 @@ import {
   Modal,
   ScrollView,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { auth, database } from '../firebaseConfig';
 import { signOut } from 'firebase/auth';
@@ -29,6 +29,7 @@ import { useNavigationVisibilityControl, NAV_VISIBILITY_LEVELS, DEFAULT_NAV_VISI
 import { TEST_MODE } from '../BuildVersionControl';
 
 export default function ProfileScreen({ navigation }) {
+  const insets = useSafeAreaInsets();
   const { visibilityLevel, setVisibilityLevel } = useNavigationVisibilityControl();
   const [isReminderEnabled, setIsReminderEnabled] = useState(false);
   const [hour, setHour] = useState(() => {
@@ -224,13 +225,14 @@ export default function ProfileScreen({ navigation }) {
       <SafeAreaView style={styles.container} edges={['right', 'left', 'bottom']}>
         <StatusBar barStyle="dark-content" />
 
-        <View style={styles.header}>
+        <View style={[styles.header, { paddingTop: insets.top + 12, justifyContent: 'center' }]}>
           <Text style={styles.headerTitle}>Profile</Text>
           <TouchableOpacity onPress={handleLogout} style={styles.logoutIconButton}>
-            <MaterialCommunityIcons name="power" size={32} color="#2f4f4f" strokeWidth={2} />
+            <MaterialCommunityIcons name="power" size={28} color="#2f4f4f" />
             <Text style={styles.logoutIconText}>Logout</Text>
           </TouchableOpacity>
         </View>
+        
 
         <View style={styles.content}>
           <ScrollView>
@@ -409,7 +411,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
-    paddingTop: 40,
+    paddingTop: 0,
     paddingBottom: 12,
     backgroundColor: 'rgba(255, 255, 255, 0.9)',
     borderBottomWidth: 1,
@@ -423,16 +425,17 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   logoutIconButton: {
+    position: 'absolute',
+    right: 16,
+    bottom: 8,
     alignItems: 'center',
     justifyContent: 'center',
-    marginLeft: 8,
-    padding: 12,
   },
   logoutIconText: {
     fontSize: 12,
     fontWeight: '700',
     color: '#2f4f4f',
-    marginTop: 6,
+    marginTop: 2,
   },
   reminderCard: {
     backgroundColor: 'rgba(255, 255, 255, 0.9)',

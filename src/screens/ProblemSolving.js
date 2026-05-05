@@ -21,7 +21,7 @@ import {
     StatusBar,
     PanResponder,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Audio } from 'expo-av';
@@ -77,6 +77,7 @@ const audioFiles = {
 };
 
 const ProblemSolvingScreen = ({ navigation }) => {
+    const insets = useSafeAreaInsets();
     // Initialize with all lessons locked except the first one
     const [lockedLessonIds, setLockedLessonIds] = useState([2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]);
     const [sound, setSound] = useState(null);
@@ -437,7 +438,7 @@ const ProblemSolvingScreen = ({ navigation }) => {
                 <StatusBar barStyle="dark-content" />
 
                 {/* Header */}
-                <View style={styles.header}>
+                <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
                     <TouchableOpacity
                         onPress={() => navigation.goBack()}
                         style={styles.backButton}
@@ -590,7 +591,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'space-between',
         paddingHorizontal: 16,
-        paddingTop: 40,
+        paddingTop: 0,
         paddingBottom: 12,
         backgroundColor: 'rgba(255, 255, 255, 0.9)',
         borderBottomWidth: 1,

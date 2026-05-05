@@ -14,7 +14,7 @@ import {
     Alert,
     Modal,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Notifications from 'expo-notifications';
@@ -24,6 +24,7 @@ import Navigation from '../components/Navigation';
 const CATEGORIES = ['Work', 'Study', 'Relationship', 'Financial', 'Health', 'Family', 'Other'];
 
 export default function StressForm({ navigation, route }) {
+    const insets = useSafeAreaInsets();
     const isEditing = route?.params?.item ? true : false;
     const existingItem = route?.params?.item;
 
@@ -202,7 +203,7 @@ export default function StressForm({ navigation, route }) {
                     style={styles.keyboardView}
                 >
                     <ScrollView contentContainerStyle={styles.content}>
-                        <View style={styles.header}>
+                        <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
                             <TouchableOpacity
                                 style={styles.backButton}
                                 onPress={() => navigation.goBack()}
@@ -456,7 +457,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'space-between',
         paddingHorizontal: 16,
-        paddingTop: 40,
+        paddingTop: 0,
         paddingBottom: 12,
         backgroundColor: 'rgba(255, 255, 255, 0.9)',
         borderBottomWidth: 1,
