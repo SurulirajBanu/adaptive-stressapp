@@ -11,6 +11,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { View, ActivityIndicator, StyleSheet, Platform } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from './src/firebaseConfig';
 import * as Notifications from 'expo-notifications';
@@ -101,7 +102,7 @@ export default function App() {
   }
 
   return (
-    <>
+    <SafeAreaProvider>
       <WeeklyMoodTracker user={user} />
       <NavigationVisibilityProvider visibilityLevel={visibilityLevel} setVisibilityLevel={setVisibilityLevel}>
         <NavigationContainer>
@@ -176,7 +177,7 @@ export default function App() {
           </Stack.Navigator>
         </NavigationContainer>
       </NavigationVisibilityProvider>
-    </>
+    </SafeAreaProvider>
   );
 }
 
