@@ -45,7 +45,7 @@ export const NAV_ITEMS = [
     },
     {
         name: 'Home',
-        screenName: 'Home2',
+        screenName: 'Home',
         icon: 'home',
         iconFamily: 'Ionicons',
         visibilityLevels: [3],

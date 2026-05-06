@@ -17,7 +17,7 @@ import { auth } from './src/firebaseConfig';
 import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
 
-import { NavigationVisibilityProvider, DEFAULT_NAV_VISIBILITY_LEVEL } from './src/BuildVersionControl';
+import { NavigationVisibilityProvider, DEFAULT_NAV_VISIBILITY_LEVEL, useNavigationVisibility } from './src/BuildVersionControl';
 import { WeeklyMoodTracker } from './src/components/WeeklyMood';
 import LoginScreen from './src/screens/LoginScreen';
 import RegisterScreen from './src/screens/RegisterScreen';
@@ -42,6 +42,13 @@ Notifications.setNotificationHandler({
 });
 
 const Stack = createStackNavigator();
+
+// Renders HomeScreen or HomeScreen2 based on the live visibilityLevel.
+// This avoids relying on initialRouteName being evaluated at exactly the right time.
+function HomeRouter(props) {
+  const level = useNavigationVisibility();
+  return level === 3 ? <HomeScreen2 {...props} /> : <HomeScreen {...props} />;
+}
 
 export default function App() {
   const [user, setUser] = useState(null);
@@ -92,17 +99,12 @@ export default function App() {
       <WeeklyMoodTracker user={user} />
       <NavigationVisibilityProvider visibilityLevel={visibilityLevel} setVisibilityLevel={setVisibilityLevel}>
         <NavigationContainer>
-          <Stack.Navigator initialRouteName={user ? (visibilityLevel === 3 ? 'Home2' : 'Home') : 'Login'}>
+          <Stack.Navigator initialRouteName={user ? 'Home' : 'Login'}>
             {user ? (
               <>
                 <Stack.Screen
                   name="Home"
-                  component={HomeScreen}
-                  options={{ headerShown: false }}
-                />
-                <Stack.Screen
-                  name="Home2"
-                  component={HomeScreen2}
+                  component={HomeRouter}
                   options={{ headerShown: false }}
                 />
                 <Stack.Screen
