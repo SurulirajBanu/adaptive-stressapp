@@ -16,6 +16,7 @@ import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from './src/firebaseConfig';
 import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
+import Constants from 'expo-constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { NavigationVisibilityProvider, DEFAULT_NAV_VISIBILITY_LEVEL } from './src/BuildVersionControl';
@@ -68,8 +69,13 @@ export default function App() {
       setLoading(false);
     });
 
-    // Load visibility level from storage
+    // Load visibility level from storage, but only if the build config
+    // does not specify a navLevel (i.e. local dev without APP_VARIANT set).
     const loadVisibilityLevel = async () => {
+      if (Constants.expoConfig?.extra?.navLevel != null) {
+        // Build-time navLevel always wins — ignore any AsyncStorage override.
+        return;
+      }
       try {
         const savedLevel = await AsyncStorage.getItem('navVisibilityLevel');
         if (savedLevel) {
